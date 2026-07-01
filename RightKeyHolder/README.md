@@ -29,6 +29,11 @@
 RightKeyHolder/右键长按助手.app
 ```
 
+## 图标
+
+- 封面源文件：`assets/cover.svg`
+- macOS app 图标：`assets/AppIcon.icns`
+
 ## 注意
 
 - Safari 可能需要在 Safari 的开发菜单里允许“来自 Apple 事件的 JavaScript”。

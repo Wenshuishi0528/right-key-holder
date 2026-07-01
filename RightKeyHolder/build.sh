@@ -6,6 +6,7 @@ APP_NAME="右键长按助手"
 BUILD_DIR="$ROOT_DIR/build"
 APP_DIR="$ROOT_DIR/$APP_NAME.app"
 EXECUTABLE="$APP_DIR/Contents/MacOS/RightKeyHolder"
+ICON_FILE="$ROOT_DIR/assets/AppIcon.icns"
 
 rm -rf "$BUILD_DIR" "$APP_DIR"
 mkdir -p "$BUILD_DIR" "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
@@ -16,6 +17,10 @@ swiftc \
   -framework ApplicationServices \
   "$ROOT_DIR/Sources/RightKeyHolder/main.swift" \
   -o "$EXECUTABLE"
+
+if [[ -f "$ICON_FILE" ]]; then
+  cp "$ICON_FILE" "$APP_DIR/Contents/Resources/AppIcon.icns"
+fi
 
 cat > "$APP_DIR/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -32,6 +37,8 @@ cat > "$APP_DIR/Contents/Info.plist" <<'PLIST'
     <string>右键长按助手</string>
     <key>CFBundleDisplayName</key>
     <string>右键长按助手</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
