@@ -3,7 +3,8 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_NAME="右键长按助手"
-APP_DIR="$ROOT_DIR/$APP_NAME.app"
+BUILD_DIR="$ROOT_DIR/build"
+APP_DIR="$BUILD_DIR/$APP_NAME.app"
 DIST_DIR="$ROOT_DIR/dist"
 PKGROOT="$ROOT_DIR/build/pkgroot"
 BUILD_SCRIPT="$ROOT_DIR/build.sh"

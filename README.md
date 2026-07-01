@@ -14,7 +14,7 @@
 
 `开始/暂停` 会优先直接切换当前浏览器标签页里的视频播放状态；如果当前窗口不是支持的浏览器，则退回到发送一次空格键，适配本地播放器或其他网页播放器。
 
-当前未发布版本：`v0.5`。软件面板底部会显示：
+当前正式版本：`v1.0`。软件面板底部会显示：
 
 ```text
 请先点击视频窗口，再点击本工具按钮。
@@ -34,7 +34,7 @@ Tested with Bilibili and YouTube for video fast-forward behavior.
 
 `Play/Pause` first tries to toggle the current browser tab's video playback state directly. If the current window is not a supported browser, it falls back to sending one Space key press for local players or other web players.
 
-Current pre-release version: `v0.5`. The app panel shows:
+Current release version: `v1.0`. The app panel shows:
 
 ```text
 Click the video window first, then click this tool.
@@ -63,7 +63,7 @@ The first time you use right-arrow holding, macOS still requires Accessibility p
 The app is generated at:
 
 ```text
-RightKeyHolder/右键长按助手.app
+RightKeyHolder/build/右键长按助手.app
 ```
 
 ## 打包 / Package

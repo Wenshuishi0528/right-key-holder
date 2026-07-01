@@ -10,7 +10,7 @@
 
 已在 B 站和 YouTube 场景测试，可用于视频快进。
 
-当前未发布版本：`v0.5`。软件面板底部会提示：请先点击视频窗口，再点击本工具按钮。
+当前正式版本：`v1.0`。软件面板底部会提示：请先点击视频窗口，再点击本工具按钮。
 
 ## 使用
 
@@ -33,7 +33,7 @@
 构建完成后会生成：
 
 ```text
-RightKeyHolder/右键长按助手.app
+RightKeyHolder/build/右键长按助手.app
 ```
 
 ### 生成安装包
@@ -86,7 +86,7 @@ The UI supports `中文 / English`; your selection is saved for the next launch.
 
 Tested with Bilibili and YouTube for video fast-forward behavior.
 
-Current pre-release version: `v0.5`. The app panel reminds users: click the video window first, then click this tool.
+Current release version: `v1.0`. The app panel reminds users: click the video window first, then click this tool.
 
 ### Usage
 
