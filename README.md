@@ -6,7 +6,7 @@
 
 右键长按助手是一个 macOS 小工具：点一下开始模拟按住右方向键，再点一下松开。它适合在 B 站、YouTube 或其他支持方向键快进/长按快进的视频页面和播放器里使用，也提供一个 `开始/暂停` 按钮。
 
-制作起因：我在看 B 站时，如果想临时让视频以 3x 播放，需要一直按住键盘右方向键，时间久了很麻烦，所以写了这个小程序，用一次点击代替长按操作。
+制作起因：我在看 B 站时，如果想让视频临时三倍速（3x），需要一直按住键盘右方向键，时间久了很麻烦。所以我写了这个小程序，把原本需要一直按住的动作变成点一下就能完成，像一个省力的辅助工具一样方便操作。
 
 默认功能是 `按住右方向键`，用系统级模拟按键控制支持该快捷键的软件。
 
@@ -28,7 +28,7 @@ YouTube按住效果为视频快进。
 
 Right Key Holder is a small macOS utility: click once to simulate holding the right arrow key, then click again to release it. It is useful for video pages and players that support right-arrow fast-forward or hold-to-fast-forward behavior, including Bilibili and YouTube. It also includes a `Play/Pause` button.
 
-Why I built it: while watching Bilibili, temporary 3x playback requires holding the keyboard's right arrow key the whole time, which gets annoying, so I made this small app to replace that long press with one click.
+Why I built it: while watching Bilibili, I found that temporary 3x playback requires holding the keyboard's right arrow key the whole time, which gets annoying. I made this small app to turn that long press into one click, so it feels like a simple assistive helper for video control.
 
 The default action is `Hold Right Arrow`, which simulates holding the right arrow key for apps or websites that support that shortcut.
 
