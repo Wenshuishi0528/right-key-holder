@@ -47,8 +47,8 @@ private let localizedStrings: [String: (zh: String, en: String)] = [
     "videoPlaying": ("已开始播放", "Video playing"),
     "playPauseKeySent": ("已发送开始/暂停键", "Sent play/pause key"),
     "holdBehaviorNote": (
-        "B站按住效果为视频三倍速。\nYouTube按住效果为视频快进。",
-        "Bilibili hold: 3x video speed.\nYouTube hold: video fast-forward."
+        "先点击视频窗口，再点击本工具按钮。\nB站按住效果为视频三倍速。\nYouTube按住效果为视频快进。",
+        "Click the video window first, then use this tool.\nBilibili hold: 3x video speed.\nYouTube hold: video fast-forward."
     ),
     "notBrowser": ("当前窗口不是支持的浏览器", "Unsupported browser"),
     "noVideo": ("当前页面没有找到视频", "No video found on this page"),
@@ -254,7 +254,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         behaviorNoteLabel.font = .systemFont(ofSize: 11, weight: .regular)
         behaviorNoteLabel.textColor = .secondaryLabelColor
         behaviorNoteLabel.alignment = .center
-        behaviorNoteLabel.maximumNumberOfLines = 2
+        behaviorNoteLabel.maximumNumberOfLines = 3
         behaviorNoteLabel.lineBreakMode = .byTruncatingTail
         behaviorNoteLabel.translatesAutoresizingMaskIntoConstraints = false
 

@@ -17,6 +17,7 @@
 当前未发布版本：`v0.4`。软件面板底部会显示：
 
 ```text
+先点击视频窗口，再点击本工具按钮。
 B站按住效果为视频三倍速。
 YouTube按住效果为视频快进。
 ```
@@ -36,6 +37,7 @@ Tested with Bilibili and YouTube for video fast-forward behavior.
 Current pre-release version: `v0.4`. The app panel shows:
 
 ```text
+Click the video window first, then use this tool.
 Bilibili hold: 3x video speed.
 YouTube hold: video fast-forward.
 ```

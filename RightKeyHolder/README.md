@@ -10,7 +10,7 @@
 
 已在 B 站和 YouTube 场景测试，可用于视频快进。
 
-当前未发布版本：`v0.4`。软件面板底部会显示 B 站和 YouTube 的按住效果说明。
+当前未发布版本：`v0.4`。软件面板底部会提示先点击视频窗口，再显示 B 站和 YouTube 的按住效果说明。
 
 ## 使用
 
@@ -61,7 +61,7 @@ The UI supports `中文 / English`; your selection is saved for the next launch.
 
 Tested with Bilibili and YouTube for video fast-forward behavior.
 
-Current pre-release version: `v0.4`. The app panel shows the hold behavior notes for Bilibili and YouTube.
+Current pre-release version: `v0.4`. The app panel reminds users to click the video window first, then shows the hold behavior notes for Bilibili and YouTube.
 
 ### Usage
 
