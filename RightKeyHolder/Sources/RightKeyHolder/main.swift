@@ -8,7 +8,7 @@ private enum RunMode: Int {
     case keyHold = 1
 }
 
-private let defaultRunMode: RunMode = .webSpeed
+private let defaultRunMode: RunMode = .keyHold
 
 private enum BrowserKind {
     case safari
@@ -68,7 +68,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func createStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        statusItem.button?.title = "3x"
+        statusItem.button?.title = defaultRunMode == .webSpeed ? "3x" : "→"
         statusItem.button?.toolTip = "右键长按助手"
 
         let menu = NSMenu()
@@ -99,13 +99,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         modePopup.action = #selector(modeChanged)
         modePopup.translatesAutoresizingMaskIntoConstraints = false
 
-        actionButton = NSButton(title: "开始 3x", target: self, action: #selector(toggleCurrentAction))
+        let initialActionTitle = defaultRunMode == .webSpeed ? "开始 3x" : "按住 →"
+        actionButton = NSButton(title: initialActionTitle, target: self, action: #selector(toggleCurrentAction))
         actionButton.bezelStyle = .rounded
         actionButton.controlSize = .large
         actionButton.font = .systemFont(ofSize: 16, weight: .medium)
         actionButton.translatesAutoresizingMaskIntoConstraints = false
 
-        statusLabel = NSTextField(labelWithString: "先切到视频页面，再点开始")
+        let initialStatusText = defaultRunMode == .webSpeed ? "先切到视频页面，再点开始" : "未按住"
+        statusLabel = NSTextField(labelWithString: initialStatusText)
         statusLabel.font = .systemFont(ofSize: 12)
         statusLabel.textColor = .secondaryLabelColor
         statusLabel.alignment = .center
