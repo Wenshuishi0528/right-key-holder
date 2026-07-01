@@ -12,6 +12,8 @@
 
 当前未发布版本：`v0.4`。软件面板底部会提示先点击视频窗口，再显示 B 站和 YouTube 的按住效果说明。
 
+右侧速率条支持 `0.5x / 1.0x / 1.5x / 2.0x / 3.0x` 五档，用于直接调整当前浏览器视频速率。
+
 ## 使用
 
 1. 双击打开 `右键长按助手.app`。
@@ -26,6 +28,7 @@
 - `按住右方向键`：默认模式，给 B 站、本地播放器或其他支持右方向键长按的软件使用。第一次使用需要在系统设置里允许辅助功能权限。
 - `网页 3x`：备用模式，适合模拟按键不被网页识别时使用。支持 Chrome、Edge、Brave、Vivaldi、Opera、Arc、Safari。
 - `开始/暂停`：优先直接切换当前浏览器标签页里的视频播放状态；如果当前窗口不是支持的浏览器，则退回到发送一次空格键。
+- `速率条`：右侧五档速率控制，支持 `0.5x / 1.0x / 1.5x / 2.0x / 3.0x`。
 
 ## 重新构建
 
@@ -62,6 +65,8 @@ The UI supports `中文 / English`; your selection is saved for the next launch.
 Tested with Bilibili and YouTube for video fast-forward behavior.
 
 Current pre-release version: `v0.4`. The app panel reminds users to click the video window first, then shows the hold behavior notes for Bilibili and YouTube.
+
+The right-side speed rail supports five rates: `0.5x / 1.0x / 1.5x / 2.0x / 3.0x`, for directly changing the current browser video's playback rate.
 
 ### Usage
 

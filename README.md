@@ -12,6 +12,8 @@
 
 已在 B 站和 YouTube 场景测试，可用于视频快进。
 
+右侧速率条支持 `0.5x / 1.0x / 1.5x / 2.0x / 3.0x` 五档，用于直接调整当前浏览器视频速率。
+
 `开始/暂停` 会优先直接切换当前浏览器标签页里的视频播放状态；如果当前窗口不是支持的浏览器，则退回到发送一次空格键，适配本地播放器或其他网页播放器。
 
 当前未发布版本：`v0.4`。软件面板底部会显示：
@@ -31,6 +33,8 @@ The default mode is `Hold Right Arrow`. If a web page does not recognize simulat
 The UI supports `中文 / English` and remembers the last selected language.
 
 Tested with Bilibili and YouTube for video fast-forward behavior.
+
+The right-side speed rail supports five rates: `0.5x / 1.0x / 1.5x / 2.0x / 3.0x`, for directly changing the current browser video's playback rate.
 
 `Play/Pause` first tries to toggle the current browser tab's video playback state directly. If the current window is not a supported browser, it falls back to sending one Space key press for local players or other web players.
 
