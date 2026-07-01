@@ -1,10 +1,14 @@
-# 右键长按助手
+# 右键长按助手 / Right Key Holder
+
+<img src="assets/cover.svg" width="96" alt="Right Key Holder icon">
 
 一个 macOS 小工具：点一下开始倍速，再点一下恢复。
 
 默认使用“按住右方向键”模式，用系统级模拟按键控制支持该快捷键的软件。也可以切到“网页 3x”模式，直接把当前浏览器标签页里的视频设为 3 倍速。
 
 界面支持 `中文 / English` 切换，选择后会自动记住，下次打开继续使用上次选择的语言。
+
+已在 B 站和 YouTube 场景测试，可用于视频快进。
 
 ## 使用
 
@@ -50,6 +54,8 @@ Right Key Holder is a small macOS utility. Click once to start speed-up behavior
 The default mode is `Hold Right Arrow`, which simulates holding the right arrow key for apps or websites that support that shortcut. You can switch to `Web 3x` to set the current browser tab's video playback rate directly to 3x.
 
 The UI supports `中文 / English`; your selection is saved for the next launch.
+
+Tested with Bilibili and YouTube for video fast-forward behavior.
 
 ### Usage
 

@@ -58,6 +58,7 @@ private func localizedText(_ key: String, language: AppLanguage) -> String {
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var panel: NSPanel!
+    private var iconImageView: NSImageView!
     private var titleLabel: NSTextField!
     private var languagePopup: NSPopUpButton!
     private var modePopup: NSPopUpButton!
@@ -132,10 +133,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func createPanel() {
-        let visualView = NSVisualEffectView(frame: NSRect(x: 0, y: 0, width: 330, height: 214))
+        let visualView = NSVisualEffectView(frame: NSRect(x: 0, y: 0, width: 330, height: 270))
         visualView.material = .hudWindow
         visualView.blendingMode = .behindWindow
         visualView.state = .active
+
+        iconImageView = NSImageView()
+        iconImageView.image = Bundle.main.url(forResource: "AppIcon", withExtension: "icns")
+            .flatMap { NSImage(contentsOf: $0) } ?? NSApp.applicationIconImage
+        iconImageView.imageScaling = .scaleProportionallyUpOrDown
+        iconImageView.translatesAutoresizingMaskIntoConstraints = false
 
         titleLabel = NSTextField(labelWithString: t("appTitle"))
         titleLabel.font = .systemFont(ofSize: 14, weight: .semibold)
@@ -186,6 +193,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         permissionButton.font = .systemFont(ofSize: 12)
         permissionButton.translatesAutoresizingMaskIntoConstraints = false
 
+        visualView.addSubview(iconImageView)
         visualView.addSubview(titleLabel)
         visualView.addSubview(languagePopup)
         visualView.addSubview(modePopup)
@@ -195,7 +203,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         visualView.addSubview(permissionButton)
 
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: visualView.topAnchor, constant: 16),
+            iconImageView.topAnchor.constraint(equalTo: visualView.topAnchor, constant: 16),
+            iconImageView.centerXAnchor.constraint(equalTo: visualView.centerXAnchor),
+            iconImageView.widthAnchor.constraint(equalToConstant: 48),
+            iconImageView.heightAnchor.constraint(equalToConstant: 48),
+
+            titleLabel.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: 8),
             titleLabel.leadingAnchor.constraint(equalTo: visualView.leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: visualView.trailingAnchor, constant: -16),
 
@@ -224,7 +237,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ])
 
         panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 330, height: 214),
+            contentRect: NSRect(x: 0, y: 0, width: 330, height: 270),
             styleMask: [.titled, .fullSizeContentView, .nonactivatingPanel],
             backing: .buffered,
             defer: false
