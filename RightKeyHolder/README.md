@@ -15,13 +15,12 @@
 ## 使用
 
 1. 双击下载的 `.pkg` 安装包，按提示安装。
-2. 默认会安装到当前用户的桌面；需要放到其他位置时，可在安装器里更改安装位置。
-3. 从安装位置打开 `右键长按助手`。
-4. 第一次使用按键功能时，点面板里的“辅助功能权限”，在系统设置里允许 `右键长按助手`。
-5. 打开 B 站或其他视频页面，点一下视频画面让它成为当前操作对象。
-6. 点浮动面板里的“按住 →”。
-7. 需要恢复时点“松开 →”。
-8. 需要播放或暂停时点“开始/暂停”。
+2. 从“应用程序”里打开 `右键长按助手`。
+3. 第一次使用按键功能时，点面板里的“辅助功能权限”，在系统设置里允许 `右键长按助手`。
+4. 打开 B 站或其他视频页面，点一下视频画面让它成为当前操作对象。
+5. 点浮动面板里的“按住 →”。
+6. 需要恢复时点“松开 →”。
+7. 需要播放或暂停时点“开始/暂停”。
 
 ## 本地开发
 
@@ -34,7 +33,7 @@
 构建完成后会生成：
 
 ```text
-RightKeyHolder/build/右键长按助手.app
+RightKeyHolder/右键长按助手.app
 ```
 
 ### 生成安装包
@@ -50,8 +49,6 @@ RightKeyHolder/dist/
 ```
 
 没有 Apple Developer 证书时，脚本会生成未签名安装包用于本地测试。公开给普通用户下载前，需要安装 `Developer ID Application` 和 `Developer ID Installer` 证书，脚本会自动使用它们签名。设置 `NOTARY_PROFILE` 为已保存的 `notarytool` 钥匙串 profile 后，脚本会继续公证并 staple 安装包。
-
-安装包默认使用当前用户 Home 域和 `/Desktop` 作为安装位置，所以默认会落到用户自己的桌面。需要换一个默认位置时，可运行 `DEFAULT_INSTALL_LOCATION="/Applications" ./package.sh`。
 
 ## 手动运行
 
@@ -94,10 +91,9 @@ Current pre-release version: `v0.5`. The app panel reminds users: click the vide
 ### Usage
 
 1. Double-click the downloaded `.pkg` installer and follow the prompts.
-2. By default, the app installs to the current user's Desktop; use the installer's location step to choose another location.
-3. Open `右键长按助手` from the install location.
-4. Grant Accessibility permission when needed for right-arrow holding.
-5. Focus the video page or player.
-6. Click `Hold →`.
-7. Click `Release →` to stop.
-8. Click `Play/Pause` to play or pause.
+2. Open `右键长按助手` from Applications.
+3. Grant Accessibility permission when needed for right-arrow holding.
+4. Focus the video page or player.
+5. Click `Hold →`.
+6. Click `Release →` to stop.
+7. Click `Play/Pause` to play or pause.

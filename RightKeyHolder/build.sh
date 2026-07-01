@@ -4,12 +4,12 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_NAME="右键长按助手"
 BUILD_DIR="$ROOT_DIR/build"
-APP_DIR="$BUILD_DIR/$APP_NAME.app"
+APP_DIR="$ROOT_DIR/$APP_NAME.app"
 EXECUTABLE="$APP_DIR/Contents/MacOS/RightKeyHolder"
 ICON_FILE="$ROOT_DIR/assets/AppIcon.icns"
 ENTITLEMENTS_FILE="$ROOT_DIR/entitlements.plist"
 
-rm -rf "$BUILD_DIR"
+rm -rf "$BUILD_DIR" "$APP_DIR"
 mkdir -p "$BUILD_DIR" "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
 
 swiftc \

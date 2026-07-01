@@ -44,13 +44,13 @@ YouTube hold: video fast-forward.
 
 ## 安装
 
-下载 `.pkg` 安装包，双击打开，按 macOS 安装器提示继续。默认安装到当前用户的桌面；需要放到其他位置时，可在安装器里更改安装位置。
+下载 `.pkg` 安装包，双击打开，按 macOS 安装器提示继续。软件会安装到 `/Applications`。
 
 第一次使用右方向键长按时，macOS 仍然需要你手动允许辅助功能权限。打开软件后点击“辅助功能权限”，在系统设置里允许 `右键长按助手`，再回到软件继续使用。
 
 ## Install
 
-Download the `.pkg` installer, double-click it, and follow the macOS installer. By default, the app installs to the current user's Desktop; use the installer's location step to choose another location.
+Download the `.pkg` installer, double-click it, and follow the macOS installer. The app will be installed into `/Applications`.
 
 The first time you use right-arrow holding, macOS still requires Accessibility permission. Open the app, click the Accessibility button, enable `右键长按助手`, then return to the app.
 
@@ -63,7 +63,7 @@ The first time you use right-arrow holding, macOS still requires Accessibility p
 The app is generated at:
 
 ```text
-RightKeyHolder/build/右键长按助手.app
+RightKeyHolder/右键长按助手.app
 ```
 
 ## 打包 / Package
@@ -81,5 +81,3 @@ RightKeyHolder/dist/
 没有 Apple Developer 证书时，脚本会生成未签名安装包用于本地测试。公开给普通用户下载前，需要安装 `Developer ID Application` 和 `Developer ID Installer` 证书；脚本会自动使用它们签名。设置 `NOTARY_PROFILE` 为已保存的 `notarytool` 钥匙串 profile 后，脚本会继续公证并 staple 安装包。
 
 Without Apple Developer certificates, the script creates an unsigned package for local testing. For public downloads, install `Developer ID Application` and `Developer ID Installer` certificates; the scripts will use them automatically. Set `NOTARY_PROFILE` to a saved `notarytool` keychain profile to notarize and staple the package.
-
-The package defaults to the current user's Desktop by using the installer home domain and `/Desktop` as the default app location. To build a package with a different default path, run `DEFAULT_INSTALL_LOCATION="/Applications" ./RightKeyHolder/package.sh`.
