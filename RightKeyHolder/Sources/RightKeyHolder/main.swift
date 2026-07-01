@@ -9,24 +9,73 @@ private enum RunMode: Int {
 }
 
 private let defaultRunMode: RunMode = .keyHold
+private let languageDefaultsKey = "SelectedLanguage"
 
 private enum BrowserKind {
     case safari
     case chromium
 }
 
+private enum AppLanguage: Int {
+    case zh = 0
+    case en = 1
+}
+
+private let localizedStrings: [String: (zh: String, en: String)] = [
+    "appTitle": ("右键长按助手", "Right Key Holder"),
+    "showPanel": ("显示面板", "Show Panel"),
+    "startStop": ("开始/停止", "Start/Stop"),
+    "quit": ("退出", "Quit"),
+    "modeWeb": ("网页 3x", "Web 3x"),
+    "modeKeyHold": ("按住右方向键", "Hold Right Arrow"),
+    "startWeb": ("开始 3x", "Start 3x"),
+    "restoreWeb": ("恢复 1x", "Restore 1x"),
+    "holdKey": ("按住 →", "Hold →"),
+    "releaseKey": ("松开 →", "Release →"),
+    "testTap": ("点按 → 测试", "Tap → Test"),
+    "permission": ("辅助功能权限", "Accessibility"),
+    "webIdle": ("先切到视频页面，再点开始", "Focus a video page, then start"),
+    "keyIdle": ("未按住", "Not holding"),
+    "keyHolding": ("右方向键按住中", "Holding right arrow"),
+    "restored1x": ("已恢复 1x", "Restored 1x"),
+    "openVideoWindow": ("先打开视频所在窗口", "Open the video window first"),
+    "browserUnsupported": ("网页模式支持 Chrome/Edge/Brave/Safari", "Use Chrome/Edge/Brave/Safari"),
+    "web3xSet": ("当前网页视频已设为 3x", "Current web video is set to 3x"),
+    "notBrowser": ("当前窗口不是支持的浏览器", "Unsupported browser"),
+    "noVideo": ("当前页面没有找到视频", "No video found on this page"),
+    "noWindow": ("浏览器没有可用窗口", "Browser has no available window"),
+    "browserNoSuccess": ("浏览器没有返回成功状态", "Browser did not confirm"),
+    "allowBrowserControl": ("请允许本工具控制浏览器", "Allow this tool to control the browser"),
+    "browserControlFailed": ("浏览器控制失败", "Browser control failed"),
+    "testTapped": ("已点按一次右方向键", "Tapped right arrow once"),
+    "accessibilityHelp": ("辅助功能权限未生效，请点右侧权限按钮", "Use Accessibility button")
+]
+
+private func localizedText(_ key: String, language: AppLanguage) -> String {
+    guard let value = localizedStrings[key] else { return key }
+    return language == .zh ? value.zh : value.en
+}
+
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var panel: NSPanel!
+    private var titleLabel: NSTextField!
+    private var languagePopup: NSPopUpButton!
     private var modePopup: NSPopUpButton!
     private var actionButton: NSButton!
     private var testButton: NSButton!
     private var statusLabel: NSTextField!
     private var permissionButton: NSButton!
     private var statusItem: NSStatusItem!
+    private var showPanelMenuItem: NSMenuItem!
+    private var toggleMenuItem: NSMenuItem!
+    private var quitMenuItem: NSMenuItem!
     private var repeatTimer: Timer?
     private var permissionTimer: Timer?
     private var isRunning = false
     private var activeMode: RunMode = defaultRunMode
+    private var currentLanguage: AppLanguage = AppLanguage(
+        rawValue: UserDefaults.standard.integer(forKey: languageDefaultsKey)
+    ) ?? .zh
     private var lastTargetApp: NSRunningApplication?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -69,44 +118,55 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func createStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         statusItem.button?.title = defaultRunMode == .webSpeed ? "3x" : "→"
-        statusItem.button?.toolTip = "右键长按助手"
+        statusItem.button?.toolTip = t("appTitle")
 
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "显示面板", action: #selector(showPanel), keyEquivalent: ""))
-        menu.addItem(NSMenuItem(title: "开始/停止", action: #selector(toggleCurrentAction), keyEquivalent: ""))
+        showPanelMenuItem = NSMenuItem(title: t("showPanel"), action: #selector(showPanel), keyEquivalent: "")
+        toggleMenuItem = NSMenuItem(title: t("startStop"), action: #selector(toggleCurrentAction), keyEquivalent: "")
+        quitMenuItem = NSMenuItem(title: t("quit"), action: #selector(quit), keyEquivalent: "q")
+        menu.addItem(showPanelMenuItem)
+        menu.addItem(toggleMenuItem)
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "退出", action: #selector(quit), keyEquivalent: "q"))
+        menu.addItem(quitMenuItem)
         statusItem.menu = menu
     }
 
     private func createPanel() {
-        let visualView = NSVisualEffectView(frame: NSRect(x: 0, y: 0, width: 300, height: 178))
+        let visualView = NSVisualEffectView(frame: NSRect(x: 0, y: 0, width: 330, height: 214))
         visualView.material = .hudWindow
         visualView.blendingMode = .behindWindow
         visualView.state = .active
 
-        let titleLabel = NSTextField(labelWithString: "右键长按助手")
+        titleLabel = NSTextField(labelWithString: t("appTitle"))
         titleLabel.font = .systemFont(ofSize: 14, weight: .semibold)
         titleLabel.textColor = .labelColor
         titleLabel.alignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
+        languagePopup = NSPopUpButton(frame: .zero, pullsDown: false)
+        languagePopup.addItem(withTitle: "中文")
+        languagePopup.addItem(withTitle: "English")
+        languagePopup.selectItem(at: currentLanguage.rawValue)
+        languagePopup.target = self
+        languagePopup.action = #selector(languageChanged)
+        languagePopup.translatesAutoresizingMaskIntoConstraints = false
+
         modePopup = NSPopUpButton(frame: .zero, pullsDown: false)
-        modePopup.addItem(withTitle: "网页 3x")
-        modePopup.addItem(withTitle: "按住右方向键")
+        modePopup.addItem(withTitle: t("modeWeb"))
+        modePopup.addItem(withTitle: t("modeKeyHold"))
         modePopup.selectItem(at: defaultRunMode.rawValue)
         modePopup.target = self
         modePopup.action = #selector(modeChanged)
         modePopup.translatesAutoresizingMaskIntoConstraints = false
 
-        let initialActionTitle = defaultRunMode == .webSpeed ? "开始 3x" : "按住 →"
+        let initialActionTitle = defaultRunMode == .webSpeed ? t("startWeb") : t("holdKey")
         actionButton = NSButton(title: initialActionTitle, target: self, action: #selector(toggleCurrentAction))
         actionButton.bezelStyle = .rounded
         actionButton.controlSize = .large
         actionButton.font = .systemFont(ofSize: 16, weight: .medium)
         actionButton.translatesAutoresizingMaskIntoConstraints = false
 
-        let initialStatusText = defaultRunMode == .webSpeed ? "先切到视频页面，再点开始" : "未按住"
+        let initialStatusText = defaultRunMode == .webSpeed ? t("webIdle") : t("keyIdle")
         statusLabel = NSTextField(labelWithString: initialStatusText)
         statusLabel.font = .systemFont(ofSize: 12)
         statusLabel.textColor = .secondaryLabelColor
@@ -114,19 +174,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusLabel.lineBreakMode = .byTruncatingTail
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        testButton = NSButton(title: "点按 → 测试", target: self, action: #selector(testRightArrowTap))
+        testButton = NSButton(title: t("testTap"), target: self, action: #selector(testRightArrowTap))
         testButton.bezelStyle = .inline
         testButton.controlSize = .small
         testButton.font = .systemFont(ofSize: 12)
         testButton.translatesAutoresizingMaskIntoConstraints = false
 
-        permissionButton = NSButton(title: "辅助功能权限", target: self, action: #selector(openAccessibilitySettings))
+        permissionButton = NSButton(title: t("permission"), target: self, action: #selector(openAccessibilitySettings))
         permissionButton.bezelStyle = .inline
         permissionButton.controlSize = .small
         permissionButton.font = .systemFont(ofSize: 12)
         permissionButton.translatesAutoresizingMaskIntoConstraints = false
 
         visualView.addSubview(titleLabel)
+        visualView.addSubview(languagePopup)
         visualView.addSubview(modePopup)
         visualView.addSubview(actionButton)
         visualView.addSubview(statusLabel)
@@ -138,13 +199,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             titleLabel.leadingAnchor.constraint(equalTo: visualView.leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: visualView.trailingAnchor, constant: -16),
 
-            modePopup.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
+            languagePopup.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            languagePopup.centerXAnchor.constraint(equalTo: visualView.centerXAnchor),
+            languagePopup.widthAnchor.constraint(equalToConstant: 174),
+
+            modePopup.topAnchor.constraint(equalTo: languagePopup.bottomAnchor, constant: 8),
             modePopup.centerXAnchor.constraint(equalTo: visualView.centerXAnchor),
-            modePopup.widthAnchor.constraint(equalToConstant: 174),
+            modePopup.widthAnchor.constraint(equalToConstant: 190),
 
             actionButton.topAnchor.constraint(equalTo: modePopup.bottomAnchor, constant: 12),
             actionButton.centerXAnchor.constraint(equalTo: visualView.centerXAnchor),
-            actionButton.widthAnchor.constraint(equalToConstant: 154),
+            actionButton.widthAnchor.constraint(equalToConstant: 170),
             actionButton.heightAnchor.constraint(equalToConstant: 36),
 
             statusLabel.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 10),
@@ -159,12 +224,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ])
 
         panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 300, height: 178),
+            contentRect: NSRect(x: 0, y: 0, width: 330, height: 214),
             styleMask: [.titled, .fullSizeContentView, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
-        panel.title = "右键长按助手"
+        panel.title = t("appTitle")
         panel.titleVisibility = .hidden
         panel.titlebarAppearsTransparent = true
         panel.contentView = visualView
@@ -189,6 +254,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         refreshPermissionState()
     }
 
+    @objc private func languageChanged() {
+        currentLanguage = AppLanguage(rawValue: languagePopup.indexOfSelectedItem) ?? .zh
+        UserDefaults.standard.set(currentLanguage.rawValue, forKey: languageDefaultsKey)
+        applyLanguage()
+    }
+
     @objc private func toggleCurrentAction() {
         isRunning ? stopCurrentAction() : startCurrentAction()
     }
@@ -211,7 +282,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     guard let self else { return }
                     self.isRunning = false
                     self.updateIdleUI()
-                    self.statusLabel.stringValue = ok ? "已恢复 1x" : message
+                    self.statusLabel.stringValue = ok ? self.t("restored1x") : message
                 }
             }
         case .keyHold:
@@ -221,11 +292,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func startWebSpeed() {
         guard let target = lastTargetApp else {
-            statusLabel.stringValue = "先打开视频所在窗口"
+            statusLabel.stringValue = t("openVideoWindow")
             return
         }
         guard browserKind(for: target.bundleIdentifier) != nil else {
-            statusLabel.stringValue = "网页模式支持 Chrome/Edge/Brave/Safari"
+            statusLabel.stringValue = t("browserUnsupported")
             return
         }
 
@@ -234,7 +305,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if ok {
                 self.isRunning = true
                 self.updateRunningUI()
-                self.statusLabel.stringValue = "当前网页视频已设为 3x"
+                self.statusLabel.stringValue = self.t("web3xSet")
             } else {
                 self.isRunning = false
                 self.updateIdleUI()
@@ -249,7 +320,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let bundleIdentifier = target.bundleIdentifier,
             let kind = browserKind(for: bundleIdentifier)
         else {
-            completion(false, "当前窗口不是支持的浏览器")
+            completion(false, t("notBrowser"))
             return
         }
 
@@ -285,11 +356,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 let output = result?.stringValue ?? ""
                 ok = output.hasPrefix("OK")
                 if output == "NO_VIDEO" {
-                    message = "当前页面没有找到视频"
+                    message = self.t("noVideo")
                 } else if output == "NO_WINDOW" {
-                    message = "浏览器没有可用窗口"
+                    message = self.t("noWindow")
                 } else {
-                    message = ok ? output : "浏览器没有返回成功状态"
+                    message = ok ? output : self.t("browserNoSuccess")
                 }
             }
 
@@ -300,7 +371,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func javascriptForPlaybackRate(_ rate: Double) -> String {
-        let rateString = String(format: "%.2f", rate)
+        let rateString = String(format: "%.2f", locale: Locale(identifier: "en_US_POSIX"), rate)
         return """
         (() => {
           const videos = Array.from(document.querySelectorAll('video'));
@@ -355,14 +426,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let number = error[NSAppleScript.errorNumber] as? NSNumber
 
         if let number, number.intValue == -1743 {
-            return "请允许本工具控制浏览器"
+            return t("allowBrowserControl")
         }
 
         if let message, !message.isEmpty {
             return message
         }
 
-        return "浏览器控制失败"
+        return t("browserControlFailed")
     }
 
     private func startKeyHold() {
@@ -411,7 +482,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.postRightArrow(keyDown: true, autorepeat: false)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.04) { [weak self] in
                 self?.postRightArrow(keyDown: false, autorepeat: false)
-                self?.statusLabel.stringValue = "已点按一次右方向键"
+                self?.statusLabel.stringValue = self?.t("testTapped") ?? ""
             }
         }
     }
@@ -419,25 +490,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func updateRunningUI() {
         switch activeMode {
         case .webSpeed:
-            actionButton.title = "恢复 1x"
+            actionButton.title = t("restoreWeb")
             statusItem.button?.title = "3x●"
+            statusLabel.stringValue = t("web3xSet")
         case .keyHold:
-            actionButton.title = "松开 →"
+            actionButton.title = t("releaseKey")
             statusItem.button?.title = "→●"
-            statusLabel.stringValue = "右方向键按住中"
+            statusLabel.stringValue = t("keyHolding")
         }
     }
 
     private func updateIdleUI() {
         switch activeMode {
         case .webSpeed:
-            actionButton.title = "开始 3x"
+            actionButton.title = t("startWeb")
             statusItem.button?.title = "3x"
-            statusLabel.stringValue = "先切到视频页面，再点开始"
+            statusLabel.stringValue = t("webIdle")
         case .keyHold:
-            actionButton.title = "按住 →"
+            actionButton.title = t("holdKey")
             statusItem.button?.title = "→"
-            statusLabel.stringValue = "未按住"
+            statusLabel.stringValue = t("keyIdle")
         }
     }
 
@@ -480,7 +552,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func accessibilityHelpText() -> String {
-        "辅助功能权限未生效，请点右侧权限按钮"
+        t("accessibilityHelp")
     }
 
     private func accessibilityTrusted(prompt: Bool) -> Bool {
@@ -497,6 +569,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func quit() {
         NSApp.terminate(nil)
+    }
+
+    private func applyLanguage() {
+        titleLabel.stringValue = t("appTitle")
+        panel.title = t("appTitle")
+        statusItem.button?.toolTip = t("appTitle")
+        showPanelMenuItem.title = t("showPanel")
+        toggleMenuItem.title = t("startStop")
+        quitMenuItem.title = t("quit")
+        modePopup.item(at: RunMode.webSpeed.rawValue)?.title = t("modeWeb")
+        modePopup.item(at: RunMode.keyHold.rawValue)?.title = t("modeKeyHold")
+        testButton.title = t("testTap")
+        permissionButton.title = t("permission")
+
+        if isRunning {
+            updateRunningUI()
+        } else {
+            updateIdleUI()
+        }
+        refreshPermissionState()
+    }
+
+    private func t(_ key: String) -> String {
+        localizedText(key, language: currentLanguage)
     }
 }
 

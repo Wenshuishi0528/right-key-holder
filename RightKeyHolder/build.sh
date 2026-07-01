@@ -50,9 +50,9 @@ cat > "$APP_DIR/Contents/Info.plist" <<'PLIST'
     <key>LSUIElement</key>
     <true/>
     <key>NSAppleEventsUsageDescription</key>
-    <string>用于把当前浏览器标签页里的视频切换到 3 倍速或恢复 1 倍速。</string>
+    <string>用于把当前浏览器标签页里的视频切换到 3 倍速或恢复 1 倍速。Used to set the current browser tab video to 3x or restore it to 1x.</string>
     <key>NSAccessibilityUsageDescription</key>
-    <string>用于模拟按住右方向键，方便在支持该快捷键的软件里临时倍速播放。</string>
+    <string>用于模拟按住右方向键，方便在支持该快捷键的软件里临时倍速播放。Used to simulate holding the right arrow key for apps that support that shortcut.</string>
     <key>NSHumanReadableCopyright</key>
     <string>Created locally for personal use.</string>
 </dict>
