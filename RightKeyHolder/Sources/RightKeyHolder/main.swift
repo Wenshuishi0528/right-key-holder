@@ -8,6 +8,8 @@ private enum RunMode: Int {
     case keyHold = 1
 }
 
+private let defaultRunMode: RunMode = .webSpeed
+
 private enum BrowserKind {
     case safari
     case chromium
@@ -24,7 +26,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var repeatTimer: Timer?
     private var permissionTimer: Timer?
     private var isRunning = false
-    private var activeMode: RunMode = .webSpeed
+    private var activeMode: RunMode = defaultRunMode
     private var lastTargetApp: NSRunningApplication?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -92,7 +94,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         modePopup = NSPopUpButton(frame: .zero, pullsDown: false)
         modePopup.addItem(withTitle: "网页 3x")
         modePopup.addItem(withTitle: "按住右方向键")
-        modePopup.selectItem(at: RunMode.webSpeed.rawValue)
+        modePopup.selectItem(at: defaultRunMode.rawValue)
         modePopup.target = self
         modePopup.action = #selector(modeChanged)
         modePopup.translatesAutoresizingMaskIntoConstraints = false
@@ -180,7 +182,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func modeChanged() {
         stopCurrentAction()
-        activeMode = RunMode(rawValue: modePopup.indexOfSelectedItem) ?? .webSpeed
+        activeMode = RunMode(rawValue: modePopup.indexOfSelectedItem) ?? defaultRunMode
         updateIdleUI()
         refreshPermissionState()
     }
@@ -190,7 +192,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func startCurrentAction() {
-        activeMode = RunMode(rawValue: modePopup.indexOfSelectedItem) ?? .webSpeed
+        activeMode = RunMode(rawValue: modePopup.indexOfSelectedItem) ?? defaultRunMode
         switch activeMode {
         case .webSpeed:
             startWebSpeed()
