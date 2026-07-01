@@ -2,7 +2,7 @@
 
 <img src="assets/cover.svg" width="96" alt="Right Key Holder icon">
 
-一个 macOS 小工具：点一下开始倍速，再点一下恢复。
+一个 macOS 小工具：点一下开始倍速，再点一下恢复。面板里也有 `暂停视频` 按钮。
 
 默认使用“按住右方向键”模式，用系统级模拟按键控制支持该快捷键的软件。也可以切到“网页 3x”模式，直接把当前浏览器标签页里的视频设为 3 倍速。
 
@@ -17,11 +17,13 @@
 3. 打开 B 站或其他视频页面，点一下视频画面让它成为当前操作对象。
 4. 点浮动面板里的“按住 →”。
 5. 需要恢复时点“松开 →”。
+6. 需要暂停时点“暂停视频”。
 
 ## 模式
 
 - `按住右方向键`：默认模式，给 B 站、本地播放器或其他支持右方向键长按的软件使用。第一次使用需要在系统设置里允许辅助功能权限。
 - `网页 3x`：备用模式，适合模拟按键不被网页识别时使用。支持 Chrome、Edge、Brave、Vivaldi、Opera、Arc、Safari。
+- `暂停视频`：优先直接暂停当前浏览器标签页里的视频；如果当前窗口不是支持的浏览器，则退回到发送一次空格键。
 
 ## 重新构建
 
@@ -49,7 +51,7 @@ RightKeyHolder/右键长按助手.app
 
 ## English
 
-Right Key Holder is a small macOS utility. Click once to start speed-up behavior, then click again to restore.
+Right Key Holder is a small macOS utility. Click once to start speed-up behavior, then click again to restore. The panel also includes a `Pause Video` button.
 
 The default mode is `Hold Right Arrow`, which simulates holding the right arrow key for apps or websites that support that shortcut. You can switch to `Web 3x` to set the current browser tab's video playback rate directly to 3x.
 
@@ -64,3 +66,4 @@ Tested with Bilibili and YouTube for video fast-forward behavior.
 3. Focus the video page or player.
 4. Click `Hold →`.
 5. Click `Release →` to stop.
+6. Click `Pause Video` to pause.

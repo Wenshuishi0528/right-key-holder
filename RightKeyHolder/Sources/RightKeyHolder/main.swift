@@ -2,6 +2,7 @@ import AppKit
 import ApplicationServices
 
 private let rightArrowKeyCode: CGKeyCode = 124
+private let spaceKeyCode: CGKeyCode = 49
 
 private enum RunMode: Int {
     case webSpeed = 0
@@ -32,6 +33,7 @@ private let localizedStrings: [String: (zh: String, en: String)] = [
     "restoreWeb": ("恢复 1x", "Restore 1x"),
     "holdKey": ("按住 →", "Hold →"),
     "releaseKey": ("松开 →", "Release →"),
+    "pauseVideo": ("暂停视频", "Pause Video"),
     "testTap": ("点按 → 测试", "Tap → Test"),
     "permission": ("辅助功能权限", "Accessibility"),
     "webIdle": ("先切到视频页面，再点开始", "Focus a video page, then start"),
@@ -41,6 +43,8 @@ private let localizedStrings: [String: (zh: String, en: String)] = [
     "openVideoWindow": ("先打开视频所在窗口", "Open the video window first"),
     "browserUnsupported": ("网页模式支持 Chrome/Edge/Brave/Safari", "Use Chrome/Edge/Brave/Safari"),
     "web3xSet": ("当前网页视频已设为 3x", "Current web video is set to 3x"),
+    "videoPaused": ("已暂停视频", "Video paused"),
+    "pauseKeySent": ("已发送暂停/播放键", "Sent play/pause key"),
     "notBrowser": ("当前窗口不是支持的浏览器", "Unsupported browser"),
     "noVideo": ("当前页面没有找到视频", "No video found on this page"),
     "noWindow": ("浏览器没有可用窗口", "Browser has no available window"),
@@ -63,6 +67,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var languagePopup: NSPopUpButton!
     private var modePopup: NSPopUpButton!
     private var actionButton: NSButton!
+    private var pauseButton: NSButton!
     private var testButton: NSButton!
     private var statusLabel: NSTextField!
     private var permissionButton: NSButton!
@@ -133,7 +138,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func createPanel() {
-        let visualView = NSVisualEffectView(frame: NSRect(x: 0, y: 0, width: 330, height: 270))
+        let visualView = NSVisualEffectView(frame: NSRect(x: 0, y: 0, width: 330, height: 318))
         visualView.material = .hudWindow
         visualView.blendingMode = .behindWindow
         visualView.state = .active
@@ -173,6 +178,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         actionButton.font = .systemFont(ofSize: 16, weight: .medium)
         actionButton.translatesAutoresizingMaskIntoConstraints = false
 
+        pauseButton = NSButton(title: t("pauseVideo"), target: self, action: #selector(pauseVideo))
+        pauseButton.bezelStyle = .rounded
+        pauseButton.controlSize = .regular
+        pauseButton.font = .systemFont(ofSize: 13, weight: .medium)
+        pauseButton.translatesAutoresizingMaskIntoConstraints = false
+
         let initialStatusText = defaultRunMode == .webSpeed ? t("webIdle") : t("keyIdle")
         statusLabel = NSTextField(labelWithString: initialStatusText)
         statusLabel.font = .systemFont(ofSize: 12)
@@ -198,6 +209,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         visualView.addSubview(languagePopup)
         visualView.addSubview(modePopup)
         visualView.addSubview(actionButton)
+        visualView.addSubview(pauseButton)
         visualView.addSubview(statusLabel)
         visualView.addSubview(testButton)
         visualView.addSubview(permissionButton)
@@ -225,7 +237,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             actionButton.widthAnchor.constraint(equalToConstant: 170),
             actionButton.heightAnchor.constraint(equalToConstant: 36),
 
-            statusLabel.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 10),
+            pauseButton.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 8),
+            pauseButton.centerXAnchor.constraint(equalTo: visualView.centerXAnchor),
+            pauseButton.widthAnchor.constraint(equalToConstant: 170),
+            pauseButton.heightAnchor.constraint(equalToConstant: 30),
+
+            statusLabel.topAnchor.constraint(equalTo: pauseButton.bottomAnchor, constant: 8),
             statusLabel.leadingAnchor.constraint(equalTo: visualView.leadingAnchor, constant: 14),
             statusLabel.trailingAnchor.constraint(equalTo: visualView.trailingAnchor, constant: -14),
 
@@ -237,7 +254,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ])
 
         panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 330, height: 270),
+            contentRect: NSRect(x: 0, y: 0, width: 330, height: 318),
             styleMask: [.titled, .fullSizeContentView, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -323,6 +340,122 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self.isRunning = false
                 self.updateIdleUI()
                 self.statusLabel.stringValue = message
+            }
+        }
+    }
+
+    @objc private func pauseVideo() {
+        if isRunning, activeMode == .keyHold {
+            stopKeyHold()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.16) { [weak self] in
+                self?.performPauseVideo()
+            }
+            return
+        }
+
+        performPauseVideo()
+    }
+
+    private func performPauseVideo() {
+        guard let target = lastTargetApp else {
+            statusLabel.stringValue = t("openVideoWindow")
+            return
+        }
+
+        if browserKind(for: target.bundleIdentifier) != nil {
+            pauseWebVideo { [weak self] ok, message in
+                guard let self else { return }
+                if ok {
+                    self.statusLabel.stringValue = self.t("videoPaused")
+                } else if message == self.t("noVideo") || message == self.t("noWindow") {
+                    self.statusLabel.stringValue = message
+                } else {
+                    self.pauseWithSpaceKey(failureMessage: message)
+                }
+            }
+            return
+        }
+
+        pauseWithSpaceKey(failureMessage: nil)
+    }
+
+    private func pauseWebVideo(completion: @escaping (Bool, String) -> Void) {
+        guard
+            let target = lastTargetApp,
+            let bundleIdentifier = target.bundleIdentifier,
+            let kind = browserKind(for: bundleIdentifier)
+        else {
+            completion(false, t("notBrowser"))
+            return
+        }
+
+        let js = """
+        (() => {
+          const videos = Array.from(document.querySelectorAll('video'));
+          const video = videos.find(v => !v.paused && v.readyState > 0) || videos.find(v => v.readyState > 0) || videos[0];
+          if (!video) return 'NO_VIDEO';
+          video.pause();
+          return 'OK_PAUSED';
+        })()
+        """
+
+        let scriptSource: String
+        switch kind {
+        case .safari:
+            scriptSource = """
+            tell application id "\(bundleIdentifier)"
+                if not (exists front window) then return "NO_WINDOW"
+                do JavaScript \(appleScriptString(js)) in current tab of front window
+            end tell
+            """
+        case .chromium:
+            scriptSource = """
+            tell application id "\(bundleIdentifier)"
+                if not (exists front window) then return "NO_WINDOW"
+                execute active tab of front window javascript \(appleScriptString(js))
+            end tell
+            """
+        }
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            var error: NSDictionary?
+            let result = NSAppleScript(source: scriptSource)?.executeAndReturnError(&error)
+            let message: String
+            let ok: Bool
+
+            if let error {
+                ok = false
+                message = self.describeAppleScriptError(error)
+            } else {
+                let output = result?.stringValue ?? ""
+                ok = output.hasPrefix("OK")
+                if output == "NO_VIDEO" {
+                    message = self.t("noVideo")
+                } else if output == "NO_WINDOW" {
+                    message = self.t("noWindow")
+                } else {
+                    message = ok ? self.t("videoPaused") : self.t("browserNoSuccess")
+                }
+            }
+
+            DispatchQueue.main.async {
+                completion(ok, message)
+            }
+        }
+    }
+
+    private func pauseWithSpaceKey(failureMessage: String?) {
+        guard accessibilityTrusted(prompt: false) else {
+            statusLabel.stringValue = failureMessage ?? accessibilityHelpText()
+            return
+        }
+
+        activateTargetIfNeeded()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { [weak self] in
+            self?.postKey(spaceKeyCode, keyDown: true, autorepeat: false)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.04) { [weak self] in
+                self?.postKey(spaceKeyCode, keyDown: false, autorepeat: false)
+                self?.statusLabel.stringValue = self?.t("pauseKeySent") ?? ""
             }
         }
     }
@@ -537,9 +670,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func postRightArrow(keyDown: Bool, autorepeat: Bool) {
+        postKey(rightArrowKeyCode, keyDown: keyDown, autorepeat: autorepeat)
+    }
+
+    private func postKey(_ keyCode: CGKeyCode, keyDown: Bool, autorepeat: Bool) {
         guard let event = CGEvent(
             keyboardEventSource: CGEventSource(stateID: .hidSystemState),
-            virtualKey: rightArrowKeyCode,
+            virtualKey: keyCode,
             keyDown: keyDown
         ) else { return }
 
@@ -593,6 +730,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         quitMenuItem.title = t("quit")
         modePopup.item(at: RunMode.webSpeed.rawValue)?.title = t("modeWeb")
         modePopup.item(at: RunMode.keyHold.rawValue)?.title = t("modeKeyHold")
+        pauseButton.title = t("pauseVideo")
         testButton.title = t("testTap")
         permissionButton.title = t("permission")
 
