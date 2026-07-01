@@ -42,15 +42,15 @@ cat > "$APP_DIR/Contents/Info.plist" <<'PLIST'
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>0.4</string>
+    <string>0.5</string>
     <key>CFBundleVersion</key>
-    <string>4</string>
+    <string>5</string>
     <key>LSMinimumSystemVersion</key>
     <string>12.0</string>
     <key>LSUIElement</key>
     <true/>
     <key>NSAppleEventsUsageDescription</key>
-    <string>用于把当前浏览器标签页里的视频切换到 3 倍速或恢复 1 倍速。Used to set the current browser tab video to 3x or restore it to 1x.</string>
+    <string>用于切换当前浏览器标签页里的视频播放或暂停。Used to toggle play or pause for the current browser tab video.</string>
     <key>NSAccessibilityUsageDescription</key>
     <string>用于模拟按住右方向键，方便在支持该快捷键的软件里临时倍速播放。Used to simulate holding the right arrow key for apps that support that shortcut.</string>
     <key>NSHumanReadableCopyright</key>

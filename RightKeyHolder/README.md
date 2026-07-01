@@ -2,17 +2,15 @@
 
 <img src="assets/cover.svg" width="96" alt="Right Key Holder icon">
 
-一个 macOS 小工具：点一下开始倍速，再点一下恢复。面板里也有 `开始/暂停` 按钮。
+一个 macOS 小工具：点一下开始模拟按住右方向键，再点一下松开。面板里也有 `开始/暂停` 按钮。
 
-默认使用“按住右方向键”模式，用系统级模拟按键控制支持该快捷键的软件。也可以切到“网页 3x”模式，直接把当前浏览器标签页里的视频设为 3 倍速。
+默认使用“按住右方向键”，用系统级模拟按键控制支持该快捷键的软件。
 
 界面支持 `中文 / English` 切换，选择后会自动记住，下次打开继续使用上次选择的语言。
 
 已在 B 站和 YouTube 场景测试，可用于视频快进。
 
-当前未发布版本：`v0.4`。软件面板底部会提示先点击视频窗口，再显示 B 站和 YouTube 的按住效果说明。
-
-右侧速率条支持 `0.5x / 1.0x / 1.5x / 2.0x / 3.0x` 五档，用于直接调整当前浏览器视频速率。
+当前未发布版本：`v0.5`。软件面板底部会提示：请先点击视频窗口，再点击本工具按钮。
 
 ## 使用
 
@@ -23,12 +21,10 @@
 5. 需要恢复时点“松开 →”。
 6. 需要播放或暂停时点“开始/暂停”。
 
-## 模式
+## 功能
 
-- `按住右方向键`：默认模式，给 B 站、本地播放器或其他支持右方向键长按的软件使用。第一次使用需要在系统设置里允许辅助功能权限。
-- `网页 3x`：备用模式，适合模拟按键不被网页识别时使用。支持 Chrome、Edge、Brave、Vivaldi、Opera、Arc、Safari。
+- `按住右方向键`：默认功能，给 B 站、本地播放器或其他支持右方向键长按的软件使用。第一次使用需要在系统设置里允许辅助功能权限。
 - `开始/暂停`：优先直接切换当前浏览器标签页里的视频播放状态；如果当前窗口不是支持的浏览器，则退回到发送一次空格键。
-- `速率条`：右侧五档速率控制，支持 `0.5x / 1.0x / 1.5x / 2.0x / 3.0x`。
 
 ## 重新构建
 
@@ -49,29 +45,27 @@ RightKeyHolder/右键长按助手.app
 
 ## 注意
 
-- Safari 可能需要在 Safari 的开发菜单里允许“来自 Apple 事件的 JavaScript”。
+- Safari 使用“开始/暂停”时，可能需要在 Safari 的开发菜单里允许“来自 Apple 事件的 JavaScript”。
 - 如果当前光标在输入框里，右方向键会作用到输入框，所以使用按键模式前先点一下视频画面。
-- 如果网页模式显示“请允许本工具控制浏览器”，到系统设置的“隐私与安全性 > 自动化”里允许它控制浏览器。
+- 如果“开始/暂停”显示“请允许本工具控制浏览器”，到系统设置的“隐私与安全性 > 自动化”里允许它控制浏览器。
 - 如果重新构建 app 后辅助功能权限看起来已经开启但仍然无效，退出 app，到“系统设置 > 隐私与安全性 > 辅助功能”里删除旧的 `右键长按助手`，再重新添加当前生成的 app。未上架签名的本地 app 每次重新构建后，macOS 可能会把它当成一个新的程序。
 
 ## English
 
-Right Key Holder is a small macOS utility. Click once to start speed-up behavior, then click again to restore. The panel also includes a `Play/Pause` button.
+Right Key Holder is a small macOS utility. Click once to simulate holding the right arrow key, then click again to release it. The panel also includes a `Play/Pause` button.
 
-The default mode is `Hold Right Arrow`, which simulates holding the right arrow key for apps or websites that support that shortcut. You can switch to `Web 3x` to set the current browser tab's video playback rate directly to 3x.
+The default action is `Hold Right Arrow`, which simulates holding the right arrow key for apps or websites that support that shortcut.
 
 The UI supports `中文 / English`; your selection is saved for the next launch.
 
 Tested with Bilibili and YouTube for video fast-forward behavior.
 
-Current pre-release version: `v0.4`. The app panel reminds users to click the video window first, then shows the hold behavior notes for Bilibili and YouTube.
-
-The right-side speed rail supports five rates: `0.5x / 1.0x / 1.5x / 2.0x / 3.0x`, for directly changing the current browser video's playback rate.
+Current pre-release version: `v0.5`. The app panel reminds users: click the video window first, then click this tool.
 
 ### Usage
 
 1. Open `右键长按助手.app`.
-2. For key-hold mode, grant Accessibility permission when needed.
+2. Grant Accessibility permission when needed for right-arrow holding.
 3. Focus the video page or player.
 4. Click `Hold →`.
 5. Click `Release →` to stop.
