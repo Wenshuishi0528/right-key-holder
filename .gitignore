@@ -1,5 +1,6 @@
 .DS_Store
-
-# Local build outputs
+RightKeyHolder/.DS_Store
+RightKeyHolder/assets/.DS_Store
 RightKeyHolder/build/
+RightKeyHolder/dist/
 RightKeyHolder/*.app/

@@ -7,6 +7,7 @@ BUILD_DIR="$ROOT_DIR/build"
 APP_DIR="$ROOT_DIR/$APP_NAME.app"
 EXECUTABLE="$APP_DIR/Contents/MacOS/RightKeyHolder"
 ICON_FILE="$ROOT_DIR/assets/AppIcon.icns"
+ENTITLEMENTS_FILE="$ROOT_DIR/entitlements.plist"
 
 rm -rf "$BUILD_DIR" "$APP_DIR"
 mkdir -p "$BUILD_DIR" "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
@@ -59,8 +60,27 @@ cat > "$APP_DIR/Contents/Info.plist" <<'PLIST'
 </plist>
 PLIST
 
+app_sign_identity="${DEVELOPER_ID_APPLICATION:-}"
+if [[ -z "$app_sign_identity" ]] && command -v security >/dev/null 2>&1; then
+  identities="$(security find-identity -v -p codesigning 2>/dev/null || true)"
+  app_sign_identity="$(
+    printf '%s\n' "$identities" \
+      | awk -F'"' '/Developer ID Application:/ { print $2; exit }'
+  )"
+fi
+
 if command -v codesign >/dev/null 2>&1; then
-  codesign --force --deep --sign - "$APP_DIR" >/dev/null
+  if [[ -n "$app_sign_identity" ]]; then
+    codesign \
+      --force \
+      --deep \
+      --options runtime \
+      --entitlements "$ENTITLEMENTS_FILE" \
+      --sign "$app_sign_identity" \
+      "$APP_DIR" >/dev/null
+  else
+    codesign --force --deep --sign - "$APP_DIR" >/dev/null
+  fi
 fi
 
 touch "$APP_DIR"

@@ -14,19 +14,17 @@
 
 ## 使用
 
-1. 双击打开 `右键长按助手.app`。
-2. 第一次使用按键模式时，点面板里的“辅助功能权限”，在系统设置里允许 `右键长按助手`。
-3. 打开 B 站或其他视频页面，点一下视频画面让它成为当前操作对象。
-4. 点浮动面板里的“按住 →”。
-5. 需要恢复时点“松开 →”。
-6. 需要播放或暂停时点“开始/暂停”。
+1. 双击下载的 `.pkg` 安装包，按提示安装。
+2. 从“应用程序”里打开 `右键长按助手`。
+3. 第一次使用按键功能时，点面板里的“辅助功能权限”，在系统设置里允许 `右键长按助手`。
+4. 打开 B 站或其他视频页面，点一下视频画面让它成为当前操作对象。
+5. 点浮动面板里的“按住 →”。
+6. 需要恢复时点“松开 →”。
+7. 需要播放或暂停时点“开始/暂停”。
 
-## 功能
+## 本地开发
 
-- `按住右方向键`：默认功能，给 B 站、本地播放器或其他支持右方向键长按的软件使用。第一次使用需要在系统设置里允许辅助功能权限。
-- `开始/暂停`：优先直接切换当前浏览器标签页里的视频播放状态；如果当前窗口不是支持的浏览器，则退回到发送一次空格键。
-
-## 重新构建
+### 重新构建
 
 ```bash
 ./build.sh
@@ -37,6 +35,34 @@
 ```text
 RightKeyHolder/右键长按助手.app
 ```
+
+### 生成安装包
+
+```bash
+./package.sh
+```
+
+安装包会生成在：
+
+```text
+RightKeyHolder/dist/
+```
+
+没有 Apple Developer 证书时，脚本会生成未签名安装包用于本地测试。公开给普通用户下载前，需要安装 `Developer ID Application` 和 `Developer ID Installer` 证书，脚本会自动使用它们签名。设置 `NOTARY_PROFILE` 为已保存的 `notarytool` 钥匙串 profile 后，脚本会继续公证并 staple 安装包。
+
+## 手动运行
+
+1. 双击打开本地构建出的 `右键长按助手.app`。
+2. 第一次使用按键模式时，点面板里的“辅助功能权限”，在系统设置里允许 `右键长按助手`。
+3. 打开 B 站或其他视频页面，点一下视频画面让它成为当前操作对象。
+4. 点浮动面板里的“按住 →”。
+5. 需要恢复时点“松开 →”。
+6. 需要播放或暂停时点“开始/暂停”。
+
+## 功能
+
+- `按住右方向键`：默认功能，给 B 站、本地播放器或其他支持右方向键长按的软件使用。第一次使用需要在系统设置里允许辅助功能权限。
+- `开始/暂停`：优先直接切换当前浏览器标签页里的视频播放状态；如果当前窗口不是支持的浏览器，则退回到发送一次空格键。
 
 ## 图标
 
@@ -64,9 +90,10 @@ Current pre-release version: `v0.5`. The app panel reminds users: click the vide
 
 ### Usage
 
-1. Open `右键长按助手.app`.
-2. Grant Accessibility permission when needed for right-arrow holding.
-3. Focus the video page or player.
-4. Click `Hold →`.
-5. Click `Release →` to stop.
-6. Click `Play/Pause` to play or pause.
+1. Double-click the downloaded `.pkg` installer and follow the prompts.
+2. Open `右键长按助手` from Applications.
+3. Grant Accessibility permission when needed for right-arrow holding.
+4. Focus the video page or player.
+5. Click `Hold →`.
+6. Click `Release →` to stop.
+7. Click `Play/Pause` to play or pause.
