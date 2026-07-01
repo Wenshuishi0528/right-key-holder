@@ -666,10 +666,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
             !version.isEmpty
         else {
-            return "v dev"
+            return "made by Wenshuishi v dev"
         }
 
-        return "v\(version)"
+        return "made by Wenshuishi v\(version)"
     }
 }
 
