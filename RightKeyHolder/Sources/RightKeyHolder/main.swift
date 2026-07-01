@@ -33,7 +33,7 @@ private let localizedStrings: [String: (zh: String, en: String)] = [
     "restoreWeb": ("恢复 1x", "Restore 1x"),
     "holdKey": ("按住 →", "Hold →"),
     "releaseKey": ("松开 →", "Release →"),
-    "pauseVideo": ("暂停视频", "Pause Video"),
+    "playPauseVideo": ("开始/暂停", "Play/Pause"),
     "testTap": ("点按 → 测试", "Tap → Test"),
     "permission": ("辅助功能权限", "Accessibility"),
     "webIdle": ("先切到视频页面，再点开始", "Focus a video page, then start"),
@@ -44,7 +44,8 @@ private let localizedStrings: [String: (zh: String, en: String)] = [
     "browserUnsupported": ("网页模式支持 Chrome/Edge/Brave/Safari", "Use Chrome/Edge/Brave/Safari"),
     "web3xSet": ("当前网页视频已设为 3x", "Current web video is set to 3x"),
     "videoPaused": ("已暂停视频", "Video paused"),
-    "pauseKeySent": ("已发送暂停/播放键", "Sent play/pause key"),
+    "videoPlaying": ("已开始播放", "Video playing"),
+    "playPauseKeySent": ("已发送开始/暂停键", "Sent play/pause key"),
     "notBrowser": ("当前窗口不是支持的浏览器", "Unsupported browser"),
     "noVideo": ("当前页面没有找到视频", "No video found on this page"),
     "noWindow": ("浏览器没有可用窗口", "Browser has no available window"),
@@ -60,13 +61,50 @@ private func localizedText(_ key: String, language: AppLanguage) -> String {
     return language == .zh ? value.zh : value.en
 }
 
+final class FilledButton: NSButton {
+    var fillColor: NSColor = .controlAccentColor {
+        didSet { needsDisplay = true }
+    }
+
+    var textColor: NSColor = .white {
+        didSet { needsDisplay = true }
+    }
+
+    override var title: String {
+        didSet { needsDisplay = true }
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        let color = isHighlighted ? (fillColor.blended(withFraction: 0.14, of: .black) ?? fillColor) : fillColor
+        color.setFill()
+        NSBezierPath(roundedRect: bounds, xRadius: 8, yRadius: 8).fill()
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize, weight: .medium),
+            .foregroundColor: textColor,
+            .paragraphStyle: paragraphStyle
+        ]
+        let attributedTitle = NSAttributedString(string: title, attributes: attributes)
+        let titleSize = attributedTitle.size()
+        let titleRect = NSRect(
+            x: 8,
+            y: (bounds.height - titleSize.height) / 2,
+            width: bounds.width - 16,
+            height: titleSize.height
+        )
+        attributedTitle.draw(in: titleRect)
+    }
+}
+
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var panel: NSPanel!
     private var iconImageView: NSImageView!
     private var titleLabel: NSTextField!
     private var languagePopup: NSPopUpButton!
     private var modePopup: NSPopUpButton!
-    private var actionButton: NSButton!
+    private var actionButton: FilledButton!
     private var pauseButton: NSButton!
     private var testButton: NSButton!
     private var statusLabel: NSTextField!
@@ -172,13 +210,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         modePopup.translatesAutoresizingMaskIntoConstraints = false
 
         let initialActionTitle = defaultRunMode == .webSpeed ? t("startWeb") : t("holdKey")
-        actionButton = NSButton(title: initialActionTitle, target: self, action: #selector(toggleCurrentAction))
-        actionButton.bezelStyle = .rounded
+        actionButton = FilledButton(title: initialActionTitle, target: self, action: #selector(toggleCurrentAction))
+        actionButton.isBordered = false
+        actionButton.fillColor = holdColor
+        actionButton.textColor = .white
         actionButton.controlSize = .large
         actionButton.font = .systemFont(ofSize: 16, weight: .medium)
         actionButton.translatesAutoresizingMaskIntoConstraints = false
 
-        pauseButton = NSButton(title: t("pauseVideo"), target: self, action: #selector(pauseVideo))
+        pauseButton = NSButton(title: t("playPauseVideo"), target: self, action: #selector(playPauseVideo))
         pauseButton.bezelStyle = .rounded
         pauseButton.controlSize = .regular
         pauseButton.font = .systemFont(ofSize: 13, weight: .medium)
@@ -344,42 +384,42 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    @objc private func pauseVideo() {
+    @objc private func playPauseVideo() {
         if isRunning, activeMode == .keyHold {
             stopKeyHold()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.16) { [weak self] in
-                self?.performPauseVideo()
+                self?.performPlayPauseVideo()
             }
             return
         }
 
-        performPauseVideo()
+        performPlayPauseVideo()
     }
 
-    private func performPauseVideo() {
+    private func performPlayPauseVideo() {
         guard let target = lastTargetApp else {
             statusLabel.stringValue = t("openVideoWindow")
             return
         }
 
         if browserKind(for: target.bundleIdentifier) != nil {
-            pauseWebVideo { [weak self] ok, message in
+            toggleWebVideoPlayback { [weak self] ok, message in
                 guard let self else { return }
                 if ok {
-                    self.statusLabel.stringValue = self.t("videoPaused")
+                    self.statusLabel.stringValue = message
                 } else if message == self.t("noVideo") || message == self.t("noWindow") {
                     self.statusLabel.stringValue = message
                 } else {
-                    self.pauseWithSpaceKey(failureMessage: message)
+                    self.playPauseWithSpaceKey(failureMessage: message)
                 }
             }
             return
         }
 
-        pauseWithSpaceKey(failureMessage: nil)
+        playPauseWithSpaceKey(failureMessage: nil)
     }
 
-    private func pauseWebVideo(completion: @escaping (Bool, String) -> Void) {
+    private func toggleWebVideoPlayback(completion: @escaping (Bool, String) -> Void) {
         guard
             let target = lastTargetApp,
             let bundleIdentifier = target.bundleIdentifier,
@@ -394,6 +434,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
           const videos = Array.from(document.querySelectorAll('video'));
           const video = videos.find(v => !v.paused && v.readyState > 0) || videos.find(v => v.readyState > 0) || videos[0];
           if (!video) return 'NO_VIDEO';
+          if (video.paused) {
+            const playResult = video.play();
+            if (playResult && typeof playResult.catch === 'function') playResult.catch(() => {});
+            return 'OK_PLAYING';
+          }
           video.pause();
           return 'OK_PAUSED';
         })()
@@ -433,8 +478,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     message = self.t("noVideo")
                 } else if output == "NO_WINDOW" {
                     message = self.t("noWindow")
+                } else if output == "OK_PLAYING" {
+                    message = self.t("videoPlaying")
+                } else if output == "OK_PAUSED" {
+                    message = self.t("videoPaused")
                 } else {
-                    message = ok ? self.t("videoPaused") : self.t("browserNoSuccess")
+                    message = ok ? output : self.t("browserNoSuccess")
                 }
             }
 
@@ -444,7 +493,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    private func pauseWithSpaceKey(failureMessage: String?) {
+    private func playPauseWithSpaceKey(failureMessage: String?) {
         guard accessibilityTrusted(prompt: false) else {
             statusLabel.stringValue = failureMessage ?? accessibilityHelpText()
             return
@@ -455,7 +504,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.postKey(spaceKeyCode, keyDown: true, autorepeat: false)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.04) { [weak self] in
                 self?.postKey(spaceKeyCode, keyDown: false, autorepeat: false)
-                self?.statusLabel.stringValue = self?.t("pauseKeySent") ?? ""
+                self?.statusLabel.stringValue = self?.t("playPauseKeySent") ?? ""
             }
         }
     }
@@ -637,10 +686,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         switch activeMode {
         case .webSpeed:
             actionButton.title = t("restoreWeb")
+            actionButton.fillColor = releaseColor
             statusItem.button?.title = "3x●"
             statusLabel.stringValue = t("web3xSet")
         case .keyHold:
             actionButton.title = t("releaseKey")
+            actionButton.fillColor = releaseColor
             statusItem.button?.title = "→●"
             statusLabel.stringValue = t("keyHolding")
         }
@@ -650,13 +701,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         switch activeMode {
         case .webSpeed:
             actionButton.title = t("startWeb")
+            actionButton.fillColor = holdColor
             statusItem.button?.title = "3x"
             statusLabel.stringValue = t("webIdle")
         case .keyHold:
             actionButton.title = t("holdKey")
+            actionButton.fillColor = holdColor
             statusItem.button?.title = "→"
             statusLabel.stringValue = t("keyIdle")
         }
+    }
+
+    private var holdColor: NSColor {
+        NSColor(calibratedRed: 0.18, green: 0.44, blue: 0.93, alpha: 1)
+    }
+
+    private var releaseColor: NSColor {
+        NSColor(calibratedRed: 0.86, green: 0.20, blue: 0.16, alpha: 1)
     }
 
     private func activateTargetIfNeeded() {
@@ -730,7 +791,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         quitMenuItem.title = t("quit")
         modePopup.item(at: RunMode.webSpeed.rawValue)?.title = t("modeWeb")
         modePopup.item(at: RunMode.keyHold.rawValue)?.title = t("modeKeyHold")
-        pauseButton.title = t("pauseVideo")
+        pauseButton.title = t("playPauseVideo")
         testButton.title = t("testTap")
         permissionButton.title = t("permission")
 
