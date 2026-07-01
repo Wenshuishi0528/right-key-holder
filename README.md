@@ -14,6 +14,13 @@
 
 `开始/暂停` 会优先直接切换当前浏览器标签页里的视频播放状态；如果当前窗口不是支持的浏览器，则退回到发送一次空格键，适配本地播放器或其他网页播放器。
 
+当前未发布版本：`v0.4`。软件面板底部会显示：
+
+```text
+B站按住效果为视频三倍速。
+YouTube按住效果为视频快进。
+```
+
 ## English
 
 Right Key Holder is a small macOS utility: click once to simulate holding the right arrow key, then click again to release it. It is useful for video pages and players that support right-arrow fast-forward or hold-to-fast-forward behavior, including Bilibili and YouTube. It also includes a `Play/Pause` button.
@@ -25,6 +32,13 @@ The UI supports `中文 / English` and remembers the last selected language.
 Tested with Bilibili and YouTube for video fast-forward behavior.
 
 `Play/Pause` first tries to toggle the current browser tab's video playback state directly. If the current window is not a supported browser, it falls back to sending one Space key press for local players or other web players.
+
+Current pre-release version: `v0.4`. The app panel shows:
+
+```text
+Bilibili hold: 3x video speed.
+YouTube hold: video fast-forward.
+```
 
 ## Build
 

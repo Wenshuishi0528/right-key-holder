@@ -46,6 +46,10 @@ private let localizedStrings: [String: (zh: String, en: String)] = [
     "videoPaused": ("已暂停视频", "Video paused"),
     "videoPlaying": ("已开始播放", "Video playing"),
     "playPauseKeySent": ("已发送开始/暂停键", "Sent play/pause key"),
+    "holdBehaviorNote": (
+        "B站按住效果为视频三倍速。\nYouTube按住效果为视频快进。",
+        "Bilibili hold: 3x video speed.\nYouTube hold: video fast-forward."
+    ),
     "notBrowser": ("当前窗口不是支持的浏览器", "Unsupported browser"),
     "noVideo": ("当前页面没有找到视频", "No video found on this page"),
     "noWindow": ("浏览器没有可用窗口", "Browser has no available window"),
@@ -109,6 +113,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var testButton: NSButton!
     private var statusLabel: NSTextField!
     private var permissionButton: NSButton!
+    private var behaviorNoteLabel: NSTextField!
     private var versionLabel: NSTextField!
     private var statusItem: NSStatusItem!
     private var showPanelMenuItem: NSMenuItem!
@@ -177,7 +182,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func createPanel() {
-        let visualView = NSVisualEffectView(frame: NSRect(x: 0, y: 0, width: 330, height: 318))
+        let visualView = NSVisualEffectView(frame: NSRect(x: 0, y: 0, width: 330, height: 360))
         visualView.material = .hudWindow
         visualView.blendingMode = .behindWindow
         visualView.state = .active
@@ -245,6 +250,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         permissionButton.font = .systemFont(ofSize: 12)
         permissionButton.translatesAutoresizingMaskIntoConstraints = false
 
+        behaviorNoteLabel = NSTextField(labelWithString: t("holdBehaviorNote"))
+        behaviorNoteLabel.font = .systemFont(ofSize: 11, weight: .regular)
+        behaviorNoteLabel.textColor = .secondaryLabelColor
+        behaviorNoteLabel.alignment = .center
+        behaviorNoteLabel.maximumNumberOfLines = 2
+        behaviorNoteLabel.lineBreakMode = .byTruncatingTail
+        behaviorNoteLabel.translatesAutoresizingMaskIntoConstraints = false
+
         versionLabel = NSTextField(labelWithString: appVersionText())
         versionLabel.font = .systemFont(ofSize: 10, weight: .regular)
         versionLabel.textColor = .tertiaryLabelColor
@@ -260,6 +273,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         visualView.addSubview(statusLabel)
         visualView.addSubview(testButton)
         visualView.addSubview(permissionButton)
+        visualView.addSubview(behaviorNoteLabel)
         visualView.addSubview(versionLabel)
 
         NSLayoutConstraint.activate([
@@ -300,12 +314,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             permissionButton.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 5),
             permissionButton.leadingAnchor.constraint(equalTo: visualView.centerXAnchor, constant: 8),
 
+            behaviorNoteLabel.leadingAnchor.constraint(equalTo: visualView.leadingAnchor, constant: 18),
+            behaviorNoteLabel.trailingAnchor.constraint(equalTo: visualView.trailingAnchor, constant: -18),
+            behaviorNoteLabel.bottomAnchor.constraint(equalTo: visualView.bottomAnchor, constant: -24),
+
             versionLabel.trailingAnchor.constraint(equalTo: visualView.trailingAnchor, constant: -10),
             versionLabel.bottomAnchor.constraint(equalTo: visualView.bottomAnchor, constant: -8)
         ])
 
         panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 330, height: 318),
+            contentRect: NSRect(x: 0, y: 0, width: 330, height: 360),
             styleMask: [.titled, .fullSizeContentView, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -805,6 +823,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         pauseButton.title = t("playPauseVideo")
         testButton.title = t("testTap")
         permissionButton.title = t("permission")
+        behaviorNoteLabel.stringValue = t("holdBehaviorNote")
 
         if isRunning {
             updateRunningUI()

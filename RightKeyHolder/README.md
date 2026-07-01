@@ -10,6 +10,8 @@
 
 已在 B 站和 YouTube 场景测试，可用于视频快进。
 
+当前未发布版本：`v0.4`。软件面板底部会显示 B 站和 YouTube 的按住效果说明。
+
 ## 使用
 
 1. 双击打开 `右键长按助手.app`。
@@ -58,6 +60,8 @@ The default mode is `Hold Right Arrow`, which simulates holding the right arrow 
 The UI supports `中文 / English`; your selection is saved for the next launch.
 
 Tested with Bilibili and YouTube for video fast-forward behavior.
+
+Current pre-release version: `v0.4`. The app panel shows the hold behavior notes for Bilibili and YouTube.
 
 ### Usage
 
