@@ -364,9 +364,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func startKeyHold() {
-        guard accessibilityTrusted(prompt: true) else {
-            statusLabel.stringValue = "请先开启辅助功能权限"
-            openAccessibilitySettings()
+        guard accessibilityTrusted(prompt: false) else {
+            statusLabel.stringValue = accessibilityHelpText()
             return
         }
 
@@ -400,9 +399,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func testRightArrowTap() {
-        guard accessibilityTrusted(prompt: true) else {
-            statusLabel.stringValue = "测试也需要辅助功能权限"
-            openAccessibilitySettings()
+        guard accessibilityTrusted(prompt: false) else {
+            statusLabel.stringValue = accessibilityHelpText()
             return
         }
 
@@ -475,8 +473,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         testButton.isHidden = false
 
         if activeMode == .keyHold, !trusted, !isRunning {
-            statusLabel.stringValue = "按住右键模式需要辅助功能权限"
+            statusLabel.stringValue = accessibilityHelpText()
         }
+    }
+
+    private func accessibilityHelpText() -> String {
+        "辅助功能权限未生效，请点右侧权限按钮"
     }
 
     private func accessibilityTrusted(prompt: Bool) -> Bool {
