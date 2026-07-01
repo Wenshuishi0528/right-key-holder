@@ -2,7 +2,7 @@
 
 <img src="assets/cover.svg" width="96" alt="Right Key Holder icon">
 
-一个 macOS 小工具：点一下开始模拟按住右方向键，再点一下松开。面板里也有 `开始/暂停` 按钮。
+一个 macOS 小工具：点一下开始模拟按住右方向键，再点一下松开。面板里也有 `开始/暂停` 按钮。Windows 版本在仓库根目录的 `Windows` 文件夹里。
 
 制作起因：我在看 B 站时，如果想让视频临时三倍速（3x），需要一直按住键盘右方向键，时间久了很麻烦。所以我写了这个小程序，把原本需要一直按住的动作变成点一下就能完成，像一个省力的辅助工具一样方便操作。
 
@@ -80,7 +80,7 @@ RightKeyHolder/dist/
 
 ## English
 
-Right Key Holder is a small macOS utility. Click once to simulate holding the right arrow key, then click again to release it. The panel also includes a `Play/Pause` button.
+Right Key Holder is a small macOS utility. Click once to simulate holding the right arrow key, then click again to release it. The panel also includes a `Play/Pause` button. The Windows version is in the repository-level `Windows` folder.
 
 Why I built it: while watching Bilibili, I found that temporary 3x playback requires holding the keyboard's right arrow key the whole time, which gets annoying. I made this small app to turn that long press into one click, so it feels like a simple assistive helper for video control.
 
