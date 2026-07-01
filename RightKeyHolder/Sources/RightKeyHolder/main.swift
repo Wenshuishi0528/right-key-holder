@@ -109,6 +109,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var testButton: NSButton!
     private var statusLabel: NSTextField!
     private var permissionButton: NSButton!
+    private var versionLabel: NSTextField!
     private var statusItem: NSStatusItem!
     private var showPanelMenuItem: NSMenuItem!
     private var toggleMenuItem: NSMenuItem!
@@ -244,6 +245,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         permissionButton.font = .systemFont(ofSize: 12)
         permissionButton.translatesAutoresizingMaskIntoConstraints = false
 
+        versionLabel = NSTextField(labelWithString: appVersionText())
+        versionLabel.font = .systemFont(ofSize: 10, weight: .regular)
+        versionLabel.textColor = .tertiaryLabelColor
+        versionLabel.alignment = .right
+        versionLabel.translatesAutoresizingMaskIntoConstraints = false
+
         visualView.addSubview(iconImageView)
         visualView.addSubview(titleLabel)
         visualView.addSubview(languagePopup)
@@ -253,6 +260,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         visualView.addSubview(statusLabel)
         visualView.addSubview(testButton)
         visualView.addSubview(permissionButton)
+        visualView.addSubview(versionLabel)
 
         NSLayoutConstraint.activate([
             iconImageView.topAnchor.constraint(equalTo: visualView.topAnchor, constant: 16),
@@ -290,7 +298,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             testButton.trailingAnchor.constraint(equalTo: visualView.centerXAnchor, constant: -8),
 
             permissionButton.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 5),
-            permissionButton.leadingAnchor.constraint(equalTo: visualView.centerXAnchor, constant: 8)
+            permissionButton.leadingAnchor.constraint(equalTo: visualView.centerXAnchor, constant: 8),
+
+            versionLabel.trailingAnchor.constraint(equalTo: visualView.trailingAnchor, constant: -10),
+            versionLabel.bottomAnchor.constraint(equalTo: visualView.bottomAnchor, constant: -8)
         ])
 
         panel = NSPanel(
@@ -805,6 +816,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func t(_ key: String) -> String {
         localizedText(key, language: currentLanguage)
+    }
+
+    private func appVersionText() -> String {
+        guard
+            let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+            !version.isEmpty
+        else {
+            return "v dev"
+        }
+
+        return "v\(version)"
     }
 }
 
