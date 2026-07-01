@@ -16,7 +16,7 @@
 
 `开始/暂停` 在 macOS 上会优先直接切换当前浏览器标签页里的视频播放状态；如果当前窗口不是支持的浏览器，则退回到发送一次空格键。Windows 版会切回上一个视频窗口并发送一次空格键。
 
-当前正式版本：`v1.0`。软件面板底部会显示：
+当前正式版本：`v1.1`。软件面板底部会显示：
 
 ```text
 请先点击视频窗口，再点击本工具按钮。
@@ -38,7 +38,7 @@ Tested with Bilibili and YouTube for video fast-forward behavior.
 
 On macOS, `Play/Pause` first tries to toggle the current browser tab's video playback state directly. If the current window is not a supported browser, it falls back to sending one Space key press. On Windows, it focuses the previous video window and sends one Space key press.
 
-Current release version: `v1.0`. The app panel shows:
+Current release version: `v1.1`. The app panel shows:
 
 ```text
 Click the video window first, then click this tool.

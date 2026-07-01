@@ -115,7 +115,7 @@ Add-Type -TypeDefinition $nativeSource -Language CSharp
 
 $script:VK_RIGHT = [UInt16]0x27
 $script:VK_SPACE = [UInt16]0x20
-$script:AppVersionText = "made by Wenshuishi v1.0"
+$script:AppVersionText = "made by Wenshuishi v1.1"
 $script:OwnProcessId = [UInt32][System.Diagnostics.Process]::GetCurrentProcess().Id
 $script:LastTargetHwnd = [IntPtr]::Zero
 $script:IsHolding = $false

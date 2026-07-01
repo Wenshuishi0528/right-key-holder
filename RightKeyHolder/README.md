@@ -12,7 +12,7 @@
 
 已在 B 站和 YouTube 场景测试，可用于视频快进。
 
-当前正式版本：`v1.0`。软件面板底部会提示：请先点击视频窗口，再点击本工具按钮。
+当前正式版本：`v1.1`。软件面板底部会提示：请先点击视频窗口，再点击本工具按钮。
 
 ## 使用
 
@@ -90,7 +90,7 @@ The UI supports `中文 / English`; your selection is saved for the next launch.
 
 Tested with Bilibili and YouTube for video fast-forward behavior.
 
-Current release version: `v1.0`. The app panel reminds users: click the video window first, then click this tool.
+Current release version: `v1.1`. The app panel reminds users: click the video window first, then click this tool.
 
 ### Usage
 
