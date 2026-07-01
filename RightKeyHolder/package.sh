@@ -3,11 +3,12 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_NAME="右键长按助手"
-APP_DIR="$ROOT_DIR/$APP_NAME.app"
+BUILD_DIR="$ROOT_DIR/build"
+APP_DIR="$BUILD_DIR/$APP_NAME.app"
 DIST_DIR="$ROOT_DIR/dist"
-PKGROOT="$ROOT_DIR/build/pkgroot"
 BUILD_SCRIPT="$ROOT_DIR/build.sh"
-PKG_IDENTIFIER="local.codex.right-key-holder.pkg"
+PRODUCT_REQUIREMENTS="$BUILD_DIR/product-requirements.plist"
+DEFAULT_INSTALL_LOCATION="${DEFAULT_INSTALL_LOCATION:-/Desktop}"
 
 "$BUILD_SCRIPT" >/dev/null
 export COPYFILE_DISABLE=1
@@ -17,16 +18,22 @@ VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_
 UNSIGNED_PKG="$DIST_DIR/RightKeyHolder-$VERSION-unsigned.pkg"
 SIGNED_PKG="$DIST_DIR/RightKeyHolder-$VERSION.pkg"
 
-rm -rf "$DIST_DIR" "$PKGROOT"
-mkdir -p "$DIST_DIR" "$PKGROOT"
-ditto --norsrc --noextattr --noacl "$APP_DIR" "$PKGROOT/$APP_NAME.app"
-
-pkgbuild \
-  --root "$PKGROOT" \
-  --install-location "/Applications" \
-  --identifier "$PKG_IDENTIFIER" \
-  --version "$VERSION" \
-  "$UNSIGNED_PKG" >/dev/null
+rm -rf "$DIST_DIR"
+mkdir -p "$DIST_DIR"
+cat > "$PRODUCT_REQUIREMENTS" <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>os</key>
+    <array>
+        <string>12.0</string>
+    </array>
+    <key>home</key>
+    <true/>
+</dict>
+</plist>
+PLIST
 
 sign_identity="${DEVELOPER_ID_INSTALLER:-}"
 if [[ -z "$sign_identity" ]] && command -v security >/dev/null 2>&1; then
@@ -39,10 +46,17 @@ fi
 
 output_pkg="$UNSIGNED_PKG"
 if [[ -n "$sign_identity" ]]; then
-  productsign --sign "$sign_identity" "$UNSIGNED_PKG" "$SIGNED_PKG" >/dev/null
-  rm -f "$UNSIGNED_PKG"
+  productbuild \
+    --product "$PRODUCT_REQUIREMENTS" \
+    --component "$APP_DIR" "$DEFAULT_INSTALL_LOCATION" \
+    --sign "$sign_identity" \
+    "$SIGNED_PKG" >/dev/null
   output_pkg="$SIGNED_PKG"
 else
+  productbuild \
+    --product "$PRODUCT_REQUIREMENTS" \
+    --component "$APP_DIR" "$DEFAULT_INSTALL_LOCATION" \
+    "$UNSIGNED_PKG" >/dev/null
   echo "No Developer ID Installer identity found; created an unsigned package for local testing." >&2
 fi
 
