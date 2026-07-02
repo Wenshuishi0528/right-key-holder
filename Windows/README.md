@@ -2,7 +2,7 @@
 
 ## 中文
 
-这是 `右键长按助手` 的 Windows 版本。双击 `Start-RightKeyHolder.cmd` 打开工具窗口。
+这是 `右键长按助手` 的 Windows 版本。双击 `A-Start-RightKeyHolder(按这个启动).cmd` 打开工具窗口。
 
 使用方式：
 
@@ -21,7 +21,7 @@
 
 ## English
 
-This is the Windows version of `Right Key Holder`. Double-click `Start-RightKeyHolder.cmd` to open the tool window.
+This is the Windows version of `Right Key Holder`. Double-click `A-Start-RightKeyHolder(按这个启动).cmd` to open the tool window.
 
 Usage:
 

@@ -115,10 +115,15 @@ Add-Type -TypeDefinition $nativeSource -Language CSharp
 
 $script:VK_RIGHT = [UInt16]0x27
 $script:VK_SPACE = [UInt16]0x20
-$script:AppVersionText = "made by Wenshuishi v1.1"
+$script:AppVersionText = "made by Wenshuishi v1.1.4"
 $script:OwnProcessId = [UInt32][System.Diagnostics.Process]::GetCurrentProcess().Id
 $script:LastTargetHwnd = [IntPtr]::Zero
 $script:IsHolding = $false
+$script:SuppressHoldClickUntil = [DateTime]::MinValue
+$script:AssetsDir = Join-Path $PSScriptRoot "assets"
+$script:CoverPngPath = Join-Path $script:AssetsDir "cover.png"
+$script:CoverIcoPath = Join-Path $script:AssetsDir "cover.ico"
+$script:CoverImage = $null
 
 function U8([string]$Base64) {
     return [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($Base64))
@@ -202,6 +207,21 @@ function Has-TargetWindow {
     return [RightKeyHolderNative]::IsWindow($script:LastTargetHwnd)
 }
 
+function Record-ForegroundTarget {
+    $hwnd = [RightKeyHolderNative]::GetForegroundWindow()
+    if ($hwnd -eq [IntPtr]::Zero -or -not [RightKeyHolderNative]::IsWindow($hwnd)) {
+        return $false
+    }
+
+    $processId = [RightKeyHolderNative]::GetProcessId($hwnd)
+    if ($processId -eq $script:OwnProcessId) {
+        return $false
+    }
+
+    $script:LastTargetHwnd = $hwnd
+    return $true
+}
+
 function Focus-TargetWindow {
     if (-not (Has-TargetWindow)) {
         $script:StatusLabel.Text = T "openVideoWindow"
@@ -241,13 +261,16 @@ function Start-Hold {
     $script:IsHolding = $true
     Update-RunningUI
 
-    if (Focus-TargetWindow) {
-        [RightKeyHolderNative]::SendKey($script:VK_RIGHT, $false)
-        $script:HoldTimer.Start()
-    }
+    Focus-TargetWindow | Out-Null
+    [RightKeyHolderNative]::SendKey($script:VK_RIGHT, $false)
+    $script:HoldTimer.Start()
 }
 
 function Stop-Hold {
+    param(
+        [bool]$RestoreTargetFocus = $true
+    )
+
     if (-not $script:IsHolding) {
         return
     }
@@ -256,11 +279,15 @@ function Stop-Hold {
     $script:IsHolding = $false
     Update-IdleUI
 
-    if (Focus-TargetWindow) {
-        [RightKeyHolderNative]::SendKey($script:VK_RIGHT, $true)
-    } else {
-        [RightKeyHolderNative]::SendKey($script:VK_RIGHT, $true)
+    if ($RestoreTargetFocus -and (Has-TargetWindow)) {
+        [RightKeyHolderNative]::SetForegroundWindow($script:LastTargetHwnd) | Out-Null
+        [System.Windows.Forms.Application]::DoEvents()
+        Start-Sleep -Milliseconds 80
     }
+
+    [RightKeyHolderNative]::SendKey($script:VK_RIGHT, $true)
+    Start-Sleep -Milliseconds 20
+    [RightKeyHolderNative]::SendKey($script:VK_RIGHT, $true)
 }
 
 function Play-Pause {
@@ -300,21 +327,43 @@ function Apply-Language {
 [System.Windows.Forms.Application]::SetCompatibleTextRenderingDefault($false)
 
 $script:Form = New-Object System.Windows.Forms.Form
-$script:Form.ClientSize = New-Object System.Drawing.Size(340, 360)
+$script:Form.ClientSize = New-Object System.Drawing.Size(340, 430)
 $script:Form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedSingle
 $script:Form.MaximizeBox = $false
 $script:Form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 $script:Form.TopMost = $true
+$script:Form.KeyPreview = $true
 $script:Form.BackColor = [System.Drawing.Color]::FromArgb(247, 249, 252)
 
+if (Test-Path $script:CoverIcoPath) {
+    try {
+        $script:Form.Icon = New-Object System.Drawing.Icon($script:CoverIcoPath)
+    } catch {
+    }
+}
+
+$script:CoverPicture = New-Object System.Windows.Forms.PictureBox
+$script:CoverPicture.Location = New-Object System.Drawing.Point(138, 12)
+$script:CoverPicture.Size = New-Object System.Drawing.Size(64, 64)
+$script:CoverPicture.SizeMode = [System.Windows.Forms.PictureBoxSizeMode]::Zoom
+$script:CoverPicture.BackColor = [System.Drawing.Color]::Transparent
+
+if (Test-Path $script:CoverPngPath) {
+    try {
+        $script:CoverImage = [System.Drawing.Image]::FromFile($script:CoverPngPath)
+        $script:CoverPicture.Image = $script:CoverImage
+    } catch {
+    }
+}
+
 $script:TitleLabel = New-Object System.Windows.Forms.Label
-$script:TitleLabel.Location = New-Object System.Drawing.Point(0, 16)
+$script:TitleLabel.Location = New-Object System.Drawing.Point(0, 84)
 $script:TitleLabel.Size = New-Object System.Drawing.Size(340, 24)
 $script:TitleLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $script:TitleLabel.Font = New-Object System.Drawing.Font("Microsoft YaHei UI", 11, [System.Drawing.FontStyle]::Bold)
 
 $languageBox = New-Object System.Windows.Forms.ComboBox
-$languageBox.Location = New-Object System.Drawing.Point(83, 52)
+$languageBox.Location = New-Object System.Drawing.Point(83, 116)
 $languageBox.Size = New-Object System.Drawing.Size(174, 28)
 $languageBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
 [void]$languageBox.Items.Add((U8 "5Lit5paH"))
@@ -327,14 +376,33 @@ $languageBox.Add_SelectedIndexChanged({
 })
 
 $script:HoldButton = New-Object System.Windows.Forms.Button
-$script:HoldButton.Location = New-Object System.Drawing.Point(85, 96)
+$script:HoldButton.Location = New-Object System.Drawing.Point(85, 160)
 $script:HoldButton.Size = New-Object System.Drawing.Size(170, 40)
 $script:HoldButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
 $script:HoldButton.FlatAppearance.BorderSize = 0
 $script:HoldButton.ForeColor = [System.Drawing.Color]::White
 $script:HoldButton.Font = New-Object System.Drawing.Font("Microsoft YaHei UI", 11, [System.Drawing.FontStyle]::Bold)
 $script:HoldButton.UseVisualStyleBackColor = $false
+$script:HoldButton.Add_MouseDown({
+    param($sender, $eventArgs)
+
+    if ($eventArgs.Button -ne [System.Windows.Forms.MouseButtons]::Left) {
+        return
+    }
+
+    $script:SuppressHoldClickUntil = [DateTime]::UtcNow.AddMilliseconds(700)
+
+    if ($script:IsHolding) {
+        Stop-Hold -RestoreTargetFocus:$true
+    } else {
+        Start-Hold
+    }
+})
 $script:HoldButton.Add_Click({
+    if ([DateTime]::UtcNow -lt $script:SuppressHoldClickUntil) {
+        return
+    }
+
     if ($script:IsHolding) {
         Stop-Hold
     } else {
@@ -343,39 +411,40 @@ $script:HoldButton.Add_Click({
 })
 
 $script:PauseButton = New-Object System.Windows.Forms.Button
-$script:PauseButton.Location = New-Object System.Drawing.Point(85, 146)
+$script:PauseButton.Location = New-Object System.Drawing.Point(85, 210)
 $script:PauseButton.Size = New-Object System.Drawing.Size(170, 32)
 $script:PauseButton.Font = New-Object System.Drawing.Font("Microsoft YaHei UI", 9, [System.Drawing.FontStyle]::Regular)
 $script:PauseButton.Add_Click({ Play-Pause })
 
 $script:StatusLabel = New-Object System.Windows.Forms.Label
-$script:StatusLabel.Location = New-Object System.Drawing.Point(20, 190)
+$script:StatusLabel.Location = New-Object System.Drawing.Point(20, 254)
 $script:StatusLabel.Size = New-Object System.Drawing.Size(300, 22)
 $script:StatusLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $script:StatusLabel.Font = New-Object System.Drawing.Font("Microsoft YaHei UI", 9, [System.Drawing.FontStyle]::Regular)
 $script:StatusLabel.ForeColor = [System.Drawing.Color]::FromArgb(79, 88, 105)
 
 $script:TestButton = New-Object System.Windows.Forms.Button
-$script:TestButton.Location = New-Object System.Drawing.Point(110, 220)
+$script:TestButton.Location = New-Object System.Drawing.Point(110, 284)
 $script:TestButton.Size = New-Object System.Drawing.Size(120, 28)
 $script:TestButton.Font = New-Object System.Drawing.Font("Microsoft YaHei UI", 8.5, [System.Drawing.FontStyle]::Regular)
 $script:TestButton.Add_Click({ Test-RightArrow })
 
 $script:NoteLabel = New-Object System.Windows.Forms.Label
-$script:NoteLabel.Location = New-Object System.Drawing.Point(18, 266)
+$script:NoteLabel.Location = New-Object System.Drawing.Point(18, 330)
 $script:NoteLabel.Size = New-Object System.Drawing.Size(304, 54)
 $script:NoteLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $script:NoteLabel.Font = New-Object System.Drawing.Font("Microsoft YaHei UI", 8.5, [System.Drawing.FontStyle]::Regular)
 $script:NoteLabel.ForeColor = [System.Drawing.Color]::FromArgb(88, 99, 118)
 
 $versionLabel = New-Object System.Windows.Forms.Label
-$versionLabel.Location = New-Object System.Drawing.Point(110, 332)
+$versionLabel.Location = New-Object System.Drawing.Point(110, 402)
 $versionLabel.Size = New-Object System.Drawing.Size(218, 18)
 $versionLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleRight
 $versionLabel.Font = New-Object System.Drawing.Font("Segoe UI", 7.5, [System.Drawing.FontStyle]::Regular)
 $versionLabel.ForeColor = [System.Drawing.Color]::FromArgb(130, 138, 152)
 $versionLabel.Text = $script:AppVersionText
 
+$script:Form.Controls.Add($script:CoverPicture)
 $script:Form.Controls.Add($script:TitleLabel)
 $script:Form.Controls.Add($languageBox)
 $script:Form.Controls.Add($script:HoldButton)
@@ -388,12 +457,19 @@ $script:Form.Controls.Add($versionLabel)
 $script:TrackTimer = New-Object System.Windows.Forms.Timer
 $script:TrackTimer.Interval = 250
 $script:TrackTimer.Add_Tick({
-    $hwnd = [RightKeyHolderNative]::GetForegroundWindow()
-    if ($hwnd -ne [IntPtr]::Zero -and [RightKeyHolderNative]::IsWindow($hwnd)) {
-        $processId = [RightKeyHolderNative]::GetProcessId($hwnd)
-        if ($processId -ne $script:OwnProcessId) {
-            $script:LastTargetHwnd = $hwnd
-        }
+    if ($script:IsHolding) {
+        return
+    }
+
+    Record-ForegroundTarget | Out-Null
+})
+
+$script:CaptureTargetTimer = New-Object System.Windows.Forms.Timer
+$script:CaptureTargetTimer.Interval = 60
+$script:CaptureTargetTimer.Add_Tick({
+    $script:CaptureTargetTimer.Stop()
+    if (-not $script:IsHolding) {
+        Record-ForegroundTarget | Out-Null
     }
 })
 
@@ -401,7 +477,15 @@ $script:HoldTimer = New-Object System.Windows.Forms.Timer
 $script:HoldTimer.Interval = 80
 $script:HoldTimer.Add_Tick({
     if ($script:IsHolding) {
-        [RightKeyHolderNative]::SendKey($script:VK_RIGHT, $false)
+        if (-not (Has-TargetWindow)) {
+            Stop-Hold -RestoreTargetFocus:$false
+            return
+        }
+
+        $foregroundHwnd = [RightKeyHolderNative]::GetForegroundWindow()
+        if ($foregroundHwnd -eq $script:LastTargetHwnd) {
+            [RightKeyHolderNative]::SendKey($script:VK_RIGHT, $false)
+        }
     }
 })
 
@@ -410,7 +494,28 @@ $script:Form.Add_FormClosing({
         $script:HoldTimer.Stop()
         [RightKeyHolderNative]::SendKey($script:VK_RIGHT, $true)
     }
+    $script:CaptureTargetTimer.Stop()
     $script:TrackTimer.Stop()
+    if ($null -ne $script:CoverImage) {
+        $script:CoverImage.Dispose()
+    }
+})
+
+$script:Form.Add_Deactivate({
+    if (-not $script:IsHolding) {
+        $script:CaptureTargetTimer.Stop()
+        $script:CaptureTargetTimer.Start()
+    }
+})
+
+$script:Form.Add_KeyDown({
+    param($sender, $eventArgs)
+
+    if ($script:IsHolding -and $eventArgs.KeyCode -eq [System.Windows.Forms.Keys]::Escape) {
+        Stop-Hold
+        $eventArgs.Handled = $true
+        $eventArgs.SuppressKeyPress = $true
+    }
 })
 
 Apply-Language

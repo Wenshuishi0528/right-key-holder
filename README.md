@@ -52,7 +52,7 @@ YouTube hold: video fast-forward.
 
 第一次使用右方向键长按时，macOS 仍然需要你手动允许辅助功能权限。打开软件后点击“辅助功能权限”，在系统设置里允许 `右键长按助手`，再回到软件继续使用。
 
-Windows 版本不需要安装额外运行环境。进入 `Windows` 文件夹，双击 `Start-RightKeyHolder.cmd` 即可打开。
+Windows 版本不需要安装额外运行环境。进入 `Windows` 文件夹，双击 `A-Start-RightKeyHolder(按这个启动).cmd` 即可打开。
 
 如果目标浏览器或播放器是“以管理员身份运行”，Windows 版也需要用管理员身份运行，否则系统可能会拦截模拟按键。
 
@@ -62,7 +62,7 @@ Download the `.pkg` installer, double-click it, and follow the macOS installer. 
 
 The first time you use right-arrow holding, macOS still requires Accessibility permission. Open the app, click the Accessibility button, enable `右键长按助手`, then return to the app.
 
-The Windows version does not need an extra runtime. Open the `Windows` folder and double-click `Start-RightKeyHolder.cmd`.
+The Windows version does not need an extra runtime. Open the `Windows` folder and double-click `A-Start-RightKeyHolder(按这个启动).cmd`.
 
 If the target browser or player is running as administrator, run the Windows tool as administrator too; otherwise Windows may block simulated input.
 
@@ -83,7 +83,7 @@ RightKeyHolder/build/右键长按助手.app
 Windows:
 
 ```text
-Windows/Start-RightKeyHolder.cmd
+Windows/A-Start-RightKeyHolder(按这个启动).cmd
 ```
 
 The Windows version is a PowerShell + WinForms utility and does not require a build step.
